@@ -1,0 +1,19 @@
+{
+  "title": "Replace with a design-doc heading",
+  "intro": "One or two sentences of engineering context: the problem, the shape of the solution, and the notable design decision.",
+  "nodes": [
+    {
+      "id": "backend",
+      "label": "FastAPI",
+      "subtitle": "Python · async",
+      "role": "What this component actually does in the system. Written plainly, like a design doc.",
+      "why": "Why this technology or approach was chosen over the others considered.",
+      "alternatives": ["Express.js", "Django", "Flask"],
+      "tradeoffs": "The honest trade-off: what you give up to get what this choice buys."
+    }
+  ],
+  "edges": [
+    { "from": "user", "to": "backend", "label": "HTTPS" },
+    { "from": "backend", "to": "database", "label": "SQL" }
+  ]
+}

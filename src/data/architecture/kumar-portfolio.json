@@ -1,0 +1,76 @@
+{
+  "title": "How this site answers as Himanshu",
+  "intro": "A static React SPA with a twist: the AI chat is a digital twin that runs entirely in the visitor's browser. This diagram traces the flow from a first click to a deployed build, and why each piece was chosen.",
+  "nodes": [
+    {
+      "id": "user",
+      "label": "User",
+      "subtitle": "browser · any device",
+      "role": "The person exploring the site. Every interaction starts here: visiting the page, opening a project, asking the twin a question.",
+      "why": "A plain web app keeps the barrier to zero: nothing to install, works on any device. Engineering time goes into the product, not a client.",
+      "alternatives": ["Native app", "CLI tool"],
+      "tradeoffs": "Browsers can't do everything: offline-first apps and deep background work are harder, but for a portfolio the reach wins."
+    },
+    {
+      "id": "frontend",
+      "label": "React SPA",
+      "subtitle": "React 18 · Vite · strict TS",
+      "role": "The single-page app. Every section (about, skills, projects, mission, achievements, blog, contact) renders client-side from shared data files in src/data, so the hero, résumé, terminal, and twin all read the same source of truth.",
+      "why": "React with strict TypeScript (tsc -b runs before every build) keeps a growing tree of sections, modals, and easter eggs refactorable. Vite makes dev instant and the production bundle lean.",
+      "alternatives": ["Next.js", "Svelte", "Vanilla JS"],
+      "tradeoffs": "No server-side rendering means first paint waits on JS and search engines see less, a real cost mitigated by a one-page design where the content is the pitch."
+    },
+    {
+      "id": "twin",
+      "label": "Digital Twin engine",
+      "subtitle": "phrase-aware retrieval · no-fabrication",
+      "role": "The AI chat widget that floats over the site. It scores a question against every knowledge section, picks the best match, fills live facts from the profile and projects, and composes a reply in my voice, entirely in the browser, with no API key by default.",
+      "why": "Answers had to be truthful and editable without touching code. Retrieval is phrase-aware: every word of a keyword phrase must appear in the question to score, which separates 'why I want an internship' from 'have I had internship experience' without hardcoded rules. Honesty is an architectural property, not a prompt.",
+      "alternatives": ["Hardcoded intents", "Hosted chat widget", "Server-side chat API"],
+      "tradeoffs": "Zero-key and fully offline, but the twin can only say what the knowledge files contain: it can't improvise or learn anything new after a deploy. That is the point: it structurally cannot fabricate."
+    },
+    {
+      "id": "knowledge",
+      "label": "Knowledge files",
+      "subtitle": "7 markdown files · ?raw import",
+      "role": "Seven markdown files (personal, education, projects, skills, goals, mission, faq) are imported at build time as raw text via Vite's ?raw transform, then parsed into sections. Each heading becomes a retrievable knowledge unit; a keywords line (or the heading itself) is what the retriever matches against.",
+      "why": "Editing the twin is editing a file: add a section or tweak the keywords line and the next build picks it up. No database, no CMS, no migration, and because the files live in git, every fact has a reviewable diff.",
+      "alternatives": [
+        "Headless CMS (e.g. Sanity)",
+        "JSON / YAML data files",
+        "Hardcoded sections in TSX"
+      ],
+      "tradeoffs": "No content-editor UI, and the twin's knowledge is frozen at build time: answers update on deploy, not live. For a one-person site that trade (truthfulness and versioning over freshness) is the right one."
+    },
+    {
+      "id": "llm",
+      "label": "Remote LLM",
+      "subtitle": "VITE_AI_ENDPOINT · optional",
+      "tone": "accent2",
+      "role": "When configured, the twin delegates open-ended answers to a real model. The site ships and works without it.",
+      "why": "The remote path reuses the same knowledge files as its system prompt, so upgrading answer quality is a config change: the content stays the source of truth.",
+      "alternatives": ["Always-on paid API", "Embedded model", "No AI at all"],
+      "tradeoffs": "Costs money per request and needs an API key in the build, so it is an opt-in upgrade. If the call fails, the twin silently falls back to the local retriever."
+    },
+    {
+      "id": "deploy",
+      "label": "Static build",
+      "subtitle": "tsc -b && vite build",
+      "role": "npm run build runs the typecheck first (tsc -b), then vite build, emitting a static bundle: HTML, JS, CSS, with the knowledge files embedded inside it. Any CDN or static host can serve it; the twin runs entirely in the visitor's browser.",
+      "why": "No server to keep warm and no database to back up: hosting costs almost nothing and can move between GitHub Pages, Netlify, or any CDN by changing one setting. Running the typecheck before bundling means a type error stops a bad deploy before it ships.",
+      "alternatives": [
+        "Next.js SSR / static generation",
+        "Serverless functions",
+        "Docker + Node server"
+      ],
+      "tradeoffs": "Nothing computes at the edge: dynamic behavior (the twin, palette, easter eggs) must run client-side, and every deploy rebuilds the whole site. Acceptable because the content is static by design."
+    }
+  ],
+  "edges": [
+    { "from": "user", "to": "frontend", "label": "visits" },
+    { "from": "frontend", "to": "twin", "label": "imports" },
+    { "from": "twin", "to": "knowledge", "label": "reads" },
+    { "from": "twin", "to": "llm", "label": "optional POST" },
+    { "from": "frontend", "to": "deploy", "label": "vite build" }
+  ]
+}

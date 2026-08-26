@@ -1,0 +1,558 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ */
+/*  Fonts                                                              */
+/* ------------------------------------------------------------------ */
+/* Sonder Regular — the Hero display title and every section numeral. */
+@font-face {
+  font-family: 'Sonder';
+  src: url('./assets/fonts/SonderRegular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Design tokens — "Industrial"                                      */
+/*  A precise, engineered charcoal. One functional signature (lime).   */
+/*  Everything else is cool neutral. Green is functional-only.         */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+
+  /* Ground — deep neutral charcoal (not pure black) */
+  --bg: #171717;
+  --bg-rgb: 23 23 23;
+  --bg-soft: #1a1a1a;
+  --bg-soft-rgb: 26 26 26;
+  --surface: #1f1f1f;
+  --surface-rgb: 31 31 31;
+  --raised: #262626;
+  --raised-rgb: 38 38 38;
+
+  /* Hairlines — cool off-white, low alpha. The site's primary texture. */
+  --line: rgba(245, 247, 242, 0.08);
+  --line-strong: rgba(245, 247, 242, 0.18);
+
+  /* Type — cool off-white scale */
+  --text: #f5f7f2;
+  --text-rgb: 245 247 242;
+  --muted: #a3a5a0;
+  --muted-rgb: 163 165 160;
+  /* Faint is the *quiet* tier, not the *invisible* one — it must stay legible
+     at 9px mono. #8e908a clears 4.5:1 WCAG AA against the panel ground. */
+  --faint: #8e908a;
+  --faint-rgb: 142 144 138;
+
+  /* The functional accent — lime. Functional-only: active, hover, focus,
+     progress, terminal prompt. Never a background tint or hairline.
+     accent-2/3 are green relatives for highlight and depth. */
+  --accent: #c7ff38;
+  --accent-rgb: 199 255 56;
+  --accent-2: #d7ff6a;
+  --accent-2-rgb: 215 255 106;
+  --accent-3: #a3d82c;
+  --accent-3-rgb: 163 216 44;
+
+  /* Status — muted, editorial (functional signal, not decorative) */
+  --ok: #8fb88a;
+  --ok-rgb: 143 184 138;
+  --warn: #a8a89e;
+  --warn-rgb: 168 168 158;
+  --danger: #c48a8a;
+  --danger-rgb: 196 138 138;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  /* Display voice only — Sonder, bundled locally */
+  --font-hero: 'Sonder', 'Space Grotesk', system-ui, sans-serif;
+
+  /* The floating control rail — raised off the viewport floor so the tools
+     sit inside the composition rather than pinned to the bottom corner.
+     Panels derive their open position from this one number. */
+  --dock-bottom: clamp(4.5rem, 15vh, 7.5rem);
+
+  /* Materiality — tuned by the Atmosphere control. Grain is the film over the
+     ink; the vignette is the room the composition sits in. Both are *felt*,
+     never obvious. */
+  --grain-opacity: 0.045;
+  --vignette-opacity: 0.45;
+
+  /* The house ease — calm, settled, cinematic. */
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hacker mode — toggled by the Konami code / terminal. A warm phosphor. */
+html.hacker-mode {
+  --accent: #8fd8a4;
+  --accent-rgb: 143 216 164;
+  --accent-2: #b4e6c2;
+  --accent-2-rgb: 180 230 194;
+  --accent-3: #5ea877;
+  --accent-3-rgb: 94 168 119;
+  --text: #d9f0df;
+  --text-rgb: 217 240 223;
+  --muted: #9ec6a9;
+  --muted-rgb: 158 198 169;
+}
+
+/* Recruiter mode — quiet the decorative CSS motion for a scannable dashboard.
+   Framer (JS) entrance animations are intentionally untouched; they power the
+   mode transition itself. */
+html.recruiter-mode .animate-blink,
+html.recruiter-mode .animate-float,
+html.recruiter-mode .animate-marquee,
+html.recruiter-mode .animate-scan,
+html.recruiter-mode .animate-orbit-spin,
+html.recruiter-mode .animate-gradient-x,
+html.recruiter-mode .animate-shimmer,
+html.recruiter-mode .animate-pulse-soft,
+html.recruiter-mode .animate-ping {
+  animation: none !important;
+}
+
+/* Elements marked .recruiter-hide (decorative easter-egg hints, etc.) disappear in Recruiter Mode. */
+html.recruiter-mode .recruiter-hide {
+  display: none !important;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+@layer base {
+  * {
+    @apply border-edge;
+  }
+
+  html {
+    @apply scroll-smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-ground text-ink font-sans antialiased;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+    color: #fff;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--raised);
+    border-radius: 999px;
+    border: 2px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--faint);
+  }
+
+  /* Range slider (volume) — custom thumb so the control matches the player */
+  input[type='range'].range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--raised);
+    cursor: pointer;
+  }
+  input[type='range'].range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 999px;
+    background: var(--text);
+    border: 2px solid var(--accent);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  }
+  input[type='range'].range-input::-moz-range-thumb {
+    height: 12px;
+    width: 12px;
+    border-radius: 999px;
+    background: var(--text);
+    border: 2px solid var(--accent);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  }
+  input[type='range'].range-input::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: var(--raised);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Components / utilities                                             */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* Elevated surface panel — quiet, architectural. A hairline, not a glow. */
+  .panel {
+    @apply relative rounded-xl border border-edge bg-surface;
+    box-shadow: inset 0 1px 0 0 rgba(245, 247, 242, 0.02);
+  }
+
+  .panel-hover {
+    transition:
+      border-color 0.35s ease,
+      transform 0.35s ease,
+      box-shadow 0.35s ease;
+  }
+  .panel-hover:hover {
+    @apply border-edge-strong;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.55);
+  }
+
+  .eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-[0.28em] text-faint;
+  }
+
+  /* Editorial tag — mono, uppercase, hairline. No fill. */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-edge px-3 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted;
+    transition:
+      border-color 0.25s ease,
+      color 0.25s ease;
+  }
+  .chip:hover {
+    @apply border-edge-strong text-ink;
+  }
+
+  /* Primary CTA — the inverted ivory button. The one loud object. */
+  .btn-primary {
+    @apply relative inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium;
+    background: var(--text);
+    color: var(--bg);
+    transition:
+      background 0.25s ease,
+      transform 0.2s ease,
+      box-shadow 0.25s ease;
+  }
+  .btn-primary:hover {
+    background: color-mix(in srgb, var(--text) 90%, var(--accent));
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.55);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.4);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-edge px-6 py-2.5 text-sm font-medium text-ink;
+    background: transparent;
+    transition:
+      border-color 0.25s ease,
+      background 0.25s ease,
+      transform 0.2s ease,
+      box-shadow 0.25s ease;
+  }
+  .btn-ghost:hover {
+    @apply border-edge-strong;
+    background: rgba(245, 247, 242, 0.03);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px -14px rgba(0, 0, 0, 0.5);
+  }
+  .btn-ghost:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Editorial scene system — magazine, not dashboard                   */
+/*  The building blocks every section composes from.                   */
+/* ------------------------------------------------------------------ */
+@layer components {
+  /* A scroll scene — one "page" of the story. Generous, unhurried air. */
+  .scene {
+    @apply relative scroll-mt-24 py-28 md:py-40;
+  }
+
+  /* Chapter kicker — the tiny mono label, always led by a hairline. */
+  .scene-kicker {
+    @apply flex items-center gap-4;
+  }
+  .scene-kicker::before {
+    content: '';
+    @apply h-px w-12 bg-edge;
+  }
+
+  /* The scene title — large, tight, architectural Space Grotesk display. */
+  .scene-title {
+    @apply font-display font-bold text-ink text-balance;
+    font-size: clamp(2.1rem, 4.6vw, 3.85rem);
+    line-height: 1.03;
+    letter-spacing: -0.035em;
+  }
+
+  /* A ghost Sonder numeral watermark — the section's chapter mark. Kept faint
+     enough to sit behind the title, but legible: at 0.055 it read as broken
+     text until selected. 0.2 stays clearly a watermark (~2:1 against the
+     charcoal ground) while being perceptible without a selection highlight. */
+  .sonder-mark {
+    @apply pointer-events-none select-none font-hero leading-none text-ink;
+    font-size: clamp(4rem, 11vw, 9rem);
+    opacity: 0.2;
+  }
+
+  /* A vertical hairline rail — seats a pull-quote or a label. */
+  .hairline-v {
+    @apply w-px self-stretch bg-edge;
+  }
+
+  /* Editorial ruled row — the index workhorse: number · title · meta. */
+  .rule-row {
+    @apply grid items-baseline gap-x-6 gap-y-1 border-t border-edge py-6 transition-colors duration-500 md:py-8;
+  }
+  /* The closing rule lives on the list container (see `rule-list`), so every
+     row reads the same whether or not it is the visual last row. */
+  .rule-list {
+    @apply border-b border-edge;
+  }
+
+  /* The oversized declarative statement — "few words, well placed." */
+  .statement {
+    @apply font-display font-bold uppercase text-ink;
+    letter-spacing: 0.015em;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    line-height: 1.02;
+  }
+}
+
+@layer utilities {
+  .container-site {
+    @apply mx-auto w-full max-w-6xl px-6 md:px-10;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Hairline rule — the site's primary divider. */
+  .hairline {
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* Editorial ruled grid — cells separated by hairlines, not gaps. */
+  .rule-grid {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .rule-grid > * {
+    background: var(--bg);
+  }
+
+  /* Balanced display lines — never a lonely orphan word. */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Grain / film noise overlay — a *felt* texture, not a visible overlay.
+     Two layers: a live film grain and a whisper of paper tooth. The eye
+     should never catch it moving.
+
+     The grain is procedural-feeling, not a static repeating tile: a large
+     fractalNoise plate (512px, stitched so it tiles seamlessly) is shuffled
+     through discrete steps() frames, so the film *breathes* like real grain
+     without an obvious repeat. Only `transform` animates — compositor-friendly.
+     `--grain-opacity` lets the Atmosphere control dim it in bright light. */
+  .noise::before {
+    content: '';
+    position: fixed;
+    inset: -100%;
+    pointer-events: none;
+    z-index: 60;
+    opacity: var(--grain-opacity, 0.045);
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-size: 512px 512px;
+    animation: grain-shift 1.1s steps(6) infinite;
+  }
+  .noise::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.015;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='1'/%3E%3C/svg%3E");
+  }
+
+  /* Vignette — the room the composition sits in. A soft fall-off toward the
+     frame's edge; the Atmosphere control tunes how much the room closes in.
+     Sits under the grain, over the content. */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 55;
+    opacity: var(--vignette-opacity, 0.45);
+    background: radial-gradient(
+      ellipse 130% 95% at 50% 38%,
+      transparent 52%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  }
+
+  .glow-dot {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Film-grain shuffle — discrete steps so the grain jumps like real
+/*  exposed film instead of sliding like a pattern. Only transform
+/*  animates; the global reduced-motion guard stills it to a static
+/*  plate.                                                             */
+/* ------------------------------------------------------------------ */
+@keyframes grain-shift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    transform: translate3d(-2%, 1.5%, 0);
+  }
+  40% {
+    transform: translate3d(1.5%, -2%, 0);
+  }
+  60% {
+    transform: translate3d(-1%, -1.5%, 0);
+  }
+  80% {
+    transform: translate3d(2%, 1%, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Typography helpers                                                 */
+/* ------------------------------------------------------------------ */
+.prose-custom {
+  @apply text-muted leading-relaxed;
+}
+.prose-custom h1,
+.prose-custom h2,
+.prose-custom h3 {
+  @apply font-display text-ink;
+  letter-spacing: -0.02em;
+}
+.prose-custom h2 {
+  @apply mt-10 mb-4 text-2xl;
+}
+.prose-custom h3 {
+  @apply mt-8 mb-3 text-xl;
+}
+.prose-custom p {
+  @apply my-4;
+}
+.prose-custom a {
+  @apply text-accent underline decoration-edge-strong underline-offset-4;
+  transition: color 0.2s ease;
+}
+.prose-custom a:hover {
+  color: var(--accent-2);
+}
+.prose-custom code {
+  @apply rounded bg-raised px-1.5 py-0.5 font-mono text-[0.85em] text-ink;
+}
+.prose-custom pre {
+  @apply my-6 overflow-x-auto rounded-xl border border-edge bg-ground p-4;
+}
+.prose-custom pre code {
+  @apply bg-transparent p-0 text-ink;
+}
+.prose-custom ul {
+  @apply my-4 list-disc space-y-2 pl-6;
+}
+.prose-custom ol {
+  @apply my-4 list-decimal space-y-2 pl-6;
+}
+.prose-custom blockquote {
+  @apply my-6 border-l-2 border-edge-strong pl-4 text-muted italic;
+}
+.prose-custom hr {
+  @apply my-8 border-edge;
+}
+.prose-custom table {
+  @apply my-6 w-full border-collapse text-sm;
+}
+.prose-custom th,
+.prose-custom td {
+  @apply border border-edge px-3 py-2 text-left;
+}
+.prose-custom th {
+  @apply bg-raised text-ink;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Print — resume page becomes a clean A4 document                    */
+/* ------------------------------------------------------------------ */
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-page {
+    background: #fff !important;
+    color: #111 !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+  .noise,
+  .noise::before {
+    display: none !important;
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "version": 3,
+  "tracks": [
+    {
+      "id": "serene-view",
+      "title": "Serene View",
+      "artist": "Arulo",
+      "mood": "Late Night",
+      "duration": 114,
+      "url": "/audio/serene-view.mp3",
+      "artwork": { "from": "#2d3748", "to": "#17181c" },
+      "source": "Mixkit (mixkit.co/free-stock-music/serene-view/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "sleepy-cat",
+      "title": "Sleepy Cat",
+      "artist": "Alejandro Magaña (A. M.)",
+      "mood": "Late Night",
+      "duration": 119,
+      "url": "/audio/sleepy-cat.mp3",
+      "artwork": { "from": "#28304a", "to": "#12141c" },
+      "source": "Mixkit (mixkit.co/free-stock-music/sleepy-cat/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "sweet-september",
+      "title": "Sweet September",
+      "artist": "Arulo",
+      "mood": "Late Night",
+      "duration": 99,
+      "url": "/audio/sweet-september.mp3",
+      "artwork": { "from": "#38413a", "to": "#171a17" },
+      "source": "Mixkit (mixkit.co/free-stock-music/sweet-september/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "feedback-dreams",
+      "title": "Feedback Dreams",
+      "artist": "Eugenio Mininni",
+      "mood": "Dream State",
+      "duration": 149,
+      "url": "/audio/feedback-dreams.mp3",
+      "artwork": { "from": "#2a2440", "to": "#151318" },
+      "source": "Mixkit (mixkit.co/free-stock-music/feedback-dreams/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "vastness",
+      "title": "Vastness",
+      "artist": "Andrew Ev",
+      "mood": "Dream State",
+      "duration": 230,
+      "url": "/audio/vastness.mp3",
+      "artwork": { "from": "#1c2f42", "to": "#0f141b" },
+      "source": "Mixkit (mixkit.co/free-stock-music/vastness/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "forest-walk",
+      "title": "Forest Walk",
+      "artist": "Eugenio Mininni",
+      "mood": "Atmosphere",
+      "duration": 174,
+      "url": "/audio/forest-walk.mp3",
+      "artwork": { "from": "#1e2e2c", "to": "#101514" },
+      "source": "Mixkit (mixkit.co/free-stock-music/forest-walk/)",
+      "license": "Mixkit Stock Music Free License"
+    },
+    {
+      "id": "opalescent",
+      "title": "Opalescent",
+      "artist": "Eugenio Mininni",
+      "mood": "Atmosphere",
+      "duration": 284,
+      "url": "/audio/opalescent.mp3",
+      "artwork": { "from": "#2b2f45", "to": "#10111a" },
+      "source": "Mixkit (mixkit.co/free-stock-music/opalescent/)",
+      "license": "Mixkit Stock Music Free License"
+    }
+  ]
+}
