@@ -21,33 +21,42 @@ export default {
         faint: 'rgb(var(--faint-rgb) / <alpha-value>)',
         ok: 'rgb(var(--ok-rgb) / <alpha-value>)',
         warn: 'rgb(var(--warn-rgb) / <alpha-value>)',
+        // Explicit palette tokens for intentional combinations
+        slate: {
+          DEFAULT: '#283845',
+          deep: '#1e2a34',
+          light: '#30455a',
+        },
+        amber: {
+          DEFAULT: '#FFA649',
+          soft: '#ffc07a',
+          deep: '#e8952f',
+        },
       },
       fontFamily: {
         display: ['var(--font-display)', 'system-ui', 'sans-serif'],
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
         hero: ['var(--font-hero)', 'system-ui', 'sans-serif'],
+        chorus: ['var(--font-hero)', 'system-ui', 'sans-serif'],
       },
       borderColor: {
         DEFAULT: 'var(--line)',
       },
       boxShadow: {
-        card: '0 1px 0 0 rgba(245,247,242,0.02) inset',
-        glow: '0 0 0 1px rgba(199,255,56,0.2), 0 8px 40px -8px rgba(199,255,56,0.28)',
-        'glow-2': '0 0 0 1px rgba(199,255,56,0.16), 0 8px 40px -8px rgba(199,255,56,0.22)',
+        card: '0 1px 0 0 rgba(255,166,73,0.10) inset',
+        glow: '0 0 0 1px rgba(255,166,73,0.35), 0 8px 40px -8px rgba(255,166,73,0.45)',
+        'glow-2': '0 0 0 1px rgba(255,166,73,0.30), 0 8px 40px -8px rgba(255,166,73,0.40)',
         lift: '0 30px 80px -30px rgba(0,0,0,0.8)',
       },
-      // One calm duration for the default interaction. Every `transition-*`
-      // without an explicit `duration-*` now eases over 300ms instead of
-      // Tailwind's snappy 150ms — the micro-interaction system is unified.
-      // Deliberate slow hovers (editorial rows, 500ms) stay explicit.
+      // One calm duration for the default interaction.
       transitionDuration: {
         DEFAULT: '300ms',
       },
       backgroundImage: {
         'grid-faint':
-          'linear-gradient(rgba(245,247,242,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245,247,242,0.04) 1px, transparent 1px)',
-        'dot-grid': 'radial-gradient(rgba(245,247,242,0.06) 1px, transparent 1px)',
+          'linear-gradient(rgba(255,166,73,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,166,73,0.05) 1px, transparent 1px)',
+        'dot-grid': 'radial-gradient(rgba(255,166,73,0.07) 1px, transparent 1px)',
       },
       keyframes: {
         blink: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0' } },
@@ -79,7 +88,6 @@ export default {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' },
         },
-        // Animated edge pulses: offset is -2 dash periods, so the loop is seamless.
         flow: { to: { strokeDashoffset: '-32' } },
         'spin-slow': {
           from: { transform: 'rotate(0deg)' },

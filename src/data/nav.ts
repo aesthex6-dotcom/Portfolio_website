@@ -1,6 +1,7 @@
 /**
- * Nav sections — order + labels drive the navbar and command palette.
- * Each id maps to a section on the home page.
+ * Nav sections — order + ids drive the navbar and command palette.
+ * Visible labels are resolved via the translation utility (t) using the
+ * active mode from UIProvider; this file keeps only stable keys.
  */
 import type { NavSection } from '@/types'
 

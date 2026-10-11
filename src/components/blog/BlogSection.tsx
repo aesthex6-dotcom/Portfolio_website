@@ -4,17 +4,20 @@ import { formatDate } from '@/lib/utils'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Reveal } from '@/components/ui/Reveal'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { Icon } from '@/components/ui/Icon'
 
 export function BlogSection() {
+  const { mode } = useUI()
   return (
     <section id="blog" className="scene">
       <div className="container-site">
         <SectionHeading
           numeral="07"
-          eyebrow="Blog"
-          titleLines={['Writing, when', 'it matters']}
-          description="I'll write about what I'm learning and building: LLMs, AI agents, ML, and full stack. Real posts only, added as I publish."
+          eyebrow={t(mode,'blog.title')}
+          titleLines={[t(mode, 'blog.titleLines1'), t(mode, 'blog.titleLines2')]}
+          description={t(mode, 'blog.subtitle')}
           amplifyMark
         />
 
@@ -69,8 +72,8 @@ export function BlogSection() {
         ) : (
           <EmptyState
             icon={<Icon name="pen-line" size={20} />}
-            title="Thoughts coming soon…"
-            description="I'm still gathering the things worth writing about. When I publish, the posts will land right here."
+            title={t(mode,'blog.comingTitle')}
+            description={t(mode, 'blog.comingDesc')}
           />
         )}
       </div>

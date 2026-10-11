@@ -4,6 +4,8 @@ import { useRef } from 'react'
 import { profile } from '@/data/profile'
 import { Icon } from '@/components/ui/Icon'
 import { useCountUp } from '@/hooks/useCountUp'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { useInView } from 'framer-motion'
 import { useGitHub } from './useGitHub'
 
@@ -43,6 +45,7 @@ function StatTile({
 }
 
 export function GitHubStats() {
+  const { mode } = useUI()
   const { user, summary, loading, userFailed } = useGitHub(profile.githubUsername)
 
   if (loading && !user) {
@@ -92,22 +95,22 @@ export function GitHubStats() {
     <div className="flex flex-wrap items-stretch gap-4">
       <StatTile
         icon={<Github className="h-4 w-4" />}
-        label="Repositories"
+        label={t(mode, 'stats.repositories')}
         value={reposValue}
       />
       <StatTile
         icon={<Icon name="star" size={16} />}
-        label="Stars"
+        label={t(mode, 'stats.stars')}
         value={starsValue}
       />
       <StatTile
         icon={<Icon name="users" size={16} />}
-        label="Followers"
+        label={t(mode, 'stats.followers')}
         value={followersValue}
       />
       <StatTile
         icon={<Icon name="git-fork" size={16} />}
-        label="Forks"
+        label={t(mode, 'stats.forks')}
         value={forksValue}
       />
     </div>

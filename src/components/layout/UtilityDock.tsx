@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { profile } from '@/data/profile'
 import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { useSoundtrack } from '@/store/soundtrackStore'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { VinylButton } from '@/components/soundtrack/VinylButton'
 import { AtmosphereControl } from './AtmosphereControl'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { cn } from '@/lib/utils'
+import { useRef } from 'react'
 
 /**
  * The utility dock — one coordinated system for the floating controls.
@@ -24,7 +26,7 @@ import { cn } from '@/lib/utils'
  * the Hero content exits and the portal sequence completes.
  */
 export function UtilityDock() {
-  const { chatOpen, setChatOpen, recruiterMode, setRecruiterMode, hackerMode, setHackerMode } = useUI()
+  const { chatOpen, setChatOpen, recruiterMode, setRecruiterMode, hackerMode, setHackerMode, mode } = useUI()
   const { isOpen } = useSoundtrack()
   const reduced = usePrefersReducedMotion()
   const { pathname } = useLocation()
@@ -99,7 +101,7 @@ export function UtilityDock() {
           onClick={() => setChatOpen(true)}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          aria-label={`Ask ${profile.firstName} (digital twin)`}
+          aria-label={t(mode, 'utility.askTwin').replace('{name}', profile.firstName)}
           className="grid h-14 w-14 cursor-pointer place-items-center rounded-full bg-accent font-display text-lg font-semibold text-base shadow-lift"
         >
           {profile.firstName[0]}
@@ -117,7 +119,7 @@ export function UtilityDock() {
           onClick={() => setModeOpen((v) => !v)}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          aria-label="Switch viewing mode"
+          aria-label={t(mode, 'utility.switchMode')}
           aria-expanded={modeOpen}
           className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-edge bg-surface/80 backdrop-blur-xl transition-colors duration-300 hover:border-edge-strong"
         >
@@ -136,8 +138,8 @@ export function UtilityDock() {
               <ModeOption
                 active={!recruiterMode && !hackerMode}
                 icon="eye"
-                label="Standard"
-                hint="Full experience"
+                label={t(mode, 'recruiter.switchStandard')}
+                hint={t(mode, 'recruiter.standardHint')}
                 onClick={() => {
                   setRecruiterMode(false)
                   setHackerMode(false)
@@ -147,8 +149,8 @@ export function UtilityDock() {
               <ModeOption
                 active={recruiterMode}
                 icon="gauge"
-                label="Quick Overview"
-                hint="Condensed for recruiters"
+                label={t(mode, 'recruiter.switchQuick')}
+                hint={t(mode, 'recruiter.quickHint')}
                 onClick={() => {
                   setRecruiterMode(true)
                   setHackerMode(false)
@@ -158,8 +160,8 @@ export function UtilityDock() {
               <ModeOption
                 active={hackerMode}
                 icon="terminal"
-                label="Hacker"
-                hint="Debug overlay + terminal"
+                label={t(mode, 'recruiter.switchHacker')}
+                hint={t(mode, 'recruiter.hackerHint')}
                 onClick={() => {
                   setHackerMode(true)
                   setRecruiterMode(false)
@@ -171,9 +173,104 @@ export function UtilityDock() {
         </AnimatePresence>
       </div>
 
+      {/* Language mode selector — English / Japanese. Independent
+          from the recruiter/hacker mode selector above to avoid interaction conflicts. */}
+      <LanguageModeSelector />
+
       {/* The room light — at the foot of the dock. Always visible. */}
       <AtmosphereControl />
     </motion.div>
+  )
+}
+
+function LanguageModeSelector() {
+  const { mode, setMode } = useUI()
+  const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    if (open) document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [open])
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    if (open) document.addEventListener('click', handleClick)
+    return () => document.removeEventListener('click', handleClick)
+  }, [open])
+
+  return (
+    <div className="relative flex flex-col items-center">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={t(mode, 'utility.switchLang')}
+        aria-expanded={open}
+        className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-edge bg-surface/80 backdrop-blur-xl transition-colors duration-300 hover:border-edge-strong focus:outline-none focus:ring-2 focus:ring-accent/40"
+      >
+        <Icon name="globe" size={14} className="text-muted" />
+        <span className="absolute -bottom-1 -right-1 rounded-full bg-accent px-1 py-0.5 text-[9px] font-bold leading-none text-base shadow-sm">{mode === 'ja' ? 'JP' : 'EN'}</span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute bottom-full mb-2 w-48 rounded-2xl border border-edge bg-surface/95 p-1.5 shadow-lift backdrop-blur-xl z-[75]"
+            role="menu"
+            aria-label={t(mode, 'utility.languageSelect')}
+          >
+            <button
+              type="button"
+              role="menuitem"
+              aria-pressed={mode === 'en'}
+              onClick={() => {
+                if (mode === 'en') { setOpen(false); return }
+                try { localStorage.setItem('portfolio:mode', 'en') } catch {}
+                try { sessionStorage.setItem('portfolio:scrollTop', '1') } catch {}
+                setMode('en')
+                window.scrollTo({ top: 0, behavior: 'instant' })
+                window.location.reload()
+              }}
+              className={cn('flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/30', mode === 'en' ? 'bg-accent/10' : 'hover:bg-raised/60')}
+            >
+              <Icon name="check" size={14} className={mode === 'en' ? 'text-accent' : 'text-transparent'} aria-hidden />
+              <span className={cn('text-[13px] font-medium', mode === 'en' ? 'text-accent' : 'text-ink')}>English</span>
+              <span className="ml-auto text-[10px] text-faint">EN</span>
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              aria-pressed={mode === 'ja'}
+              onClick={() => {
+                if (mode === 'ja') { setOpen(false); return }
+                try { localStorage.setItem('portfolio:mode', 'ja') } catch {}
+                try { sessionStorage.setItem('portfolio:scrollTop', '1') } catch {}
+                setMode('ja')
+                window.scrollTo({ top: 0, behavior: 'instant' })
+                window.location.reload()
+              }}
+              className={cn('flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent/30', mode === 'ja' ? 'bg-accent/10' : 'hover:bg-raised/60')}
+            >
+              <Icon name="check" size={14} className={mode === 'ja' ? 'text-accent' : 'text-transparent'} aria-hidden />
+              <span className={cn('text-[13px] font-medium', mode === 'ja' ? 'text-accent' : 'text-ink')}>日本語</span>
+              <span className="ml-auto text-[10px] text-faint">JP</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
 

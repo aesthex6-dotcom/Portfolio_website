@@ -8,9 +8,10 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 export function Contact() {
-  const { openTerminal } = useUI()
+  const { openTerminal, mode } = useUI()
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -94,9 +95,9 @@ export function Contact() {
       <div className="container-site relative">
         <SectionHeading
           numeral="08"
-          eyebrow="Contact"
-          titleLines={["Let's build", "something intelligent"]}
-          description="Open to ML engineering, applied research and AI infrastructure roles. I usually reply within 24–48 hours."
+          eyebrow={t(mode, 'contact.title')}
+          titleLines={[t(mode, 'contact.title1'), t(mode, 'contact.title2')]}
+          description={t(mode, 'contact.subtitle')}
           amplifyMark
         />
 
@@ -108,7 +109,7 @@ export function Contact() {
           className="mb-12 flex origin-left items-center gap-3"
         >
           <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.22em] text-faint">
-            Transmit
+            {t(mode, 'contact.transmit')}
           </span>
           <span className="h-px flex-1 bg-edge/70" aria-hidden />
           <Icon name="arrow-right" size={14} className="shrink-0 text-faint" aria-hidden />
@@ -122,7 +123,7 @@ export function Contact() {
           >
             <Reveal direction="left">
               <div className="mb-2 flex items-baseline justify-between gap-2">
-                <p className="eyebrow">Channels</p>
+                <p className="eyebrow">{t(mode, 'contact.channels')}</p>
                 <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
                   {String(routeCount).padStart(2, '0')} routes
                 </p>
@@ -237,7 +238,7 @@ export function Contact() {
                 <span className="absolute -right-px -top-px h-3 w-3 border-r border-t border-edge-strong" aria-hidden />
 
                 <div className="mb-8 flex items-baseline justify-between gap-2">
-                  <p className="eyebrow">Incoming message</p>
+                  <p className="eyebrow">{t(mode, 'contact.incoming')}</p>
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
                     CHN.03 · MSG
                   </p>
@@ -246,13 +247,13 @@ export function Contact() {
                   <label className="block">
                     <span className="flex items-baseline gap-3">
                       <span className="font-mono text-[10px] text-faint">01</span>
-                      <span className="eyebrow">Your name</span>
+                      <span className="eyebrow">{t(mode, 'contact.yourName')}</span>
                     </span>
                     <motion.input
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="Jane Doe"
+                      placeholder={t(mode, 'contact.placeholderName')}
                       style={{ opacity: field0Opacity, x: field0X }}
                       transition={enterTransition}
                       className="mt-3 w-full border-b border-edge bg-transparent pb-3 pt-1 text-[15px] text-ink placeholder:text-faint transition-[border-color,box-shadow] duration-300 hover:border-edge-strong focus:border-accent focus:shadow-[0_1px_0_var(--accent)] focus:outline-none"
@@ -261,14 +262,14 @@ export function Contact() {
                   <label className="block">
                     <span className="flex items-baseline gap-3">
                       <span className="font-mono text-[10px] text-faint">02</span>
-                      <span className="eyebrow">Your email</span>
+                      <span className="eyebrow">{t(mode, 'contact.yourEmail')}</span>
                     </span>
                     <motion.input
                       required
                       type="email"
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="jane@company.com"
+                      placeholder={t(mode, 'contact.placeholderEmail')}
                       style={{ opacity: field1Opacity, x: field1X }}
                       transition={enterTransition}
                       className="mt-3 w-full border-b border-edge bg-transparent pb-3 pt-1 text-[15px] text-ink placeholder:text-faint transition-[border-color,box-shadow] duration-300 hover:border-edge-strong focus:border-accent focus:shadow-[0_1px_0_var(--accent)] focus:outline-none"
@@ -277,14 +278,14 @@ export function Contact() {
                   <label className="block">
                     <span className="flex items-baseline gap-3">
                       <span className="font-mono text-[10px] text-faint">03</span>
-                      <span className="eyebrow">The problem</span>
+                      <span className="eyebrow">{t(mode, 'contact.theProblem')}</span>
                     </span>
                     <motion.textarea
                       required
                       rows={4}
                       value={form.message}
                       onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      placeholder="Tell me about the role, the team, the problem…"
+                      placeholder={t(mode, 'contact.placeholderMsg')}
                       style={{ opacity: field2Opacity, x: field2X }}
                       transition={enterTransition}
                       className="mt-3 w-full resize-none border-b border-edge bg-transparent pb-3 pt-1 text-[15px] text-ink placeholder:text-faint transition-colors focus:border-accent focus:outline-none"
@@ -300,20 +301,20 @@ export function Contact() {
                   <div>
                     <p className="font-mono text-[12px] text-faint">{profile.availability}</p>
                     <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.2em] text-faint">
-                      Opens your mail client
+                      {t(mode, 'contact.opensClient')}
                     </p>
                   </div>
                   <button type="submit" className="btn-primary">
                     <Icon name="send" size={15} />
-                    Send message
+                    {t(mode, 'contact.sendMessage')}
                   </button>
                 </motion.div>
               </motion.form>
             ) : (
               <EmptyState
                 icon={<Icon name="mail" size={20} />}
-                title="No inbox to send to yet"
-                description="Once my real email is live, a quick message form will appear here. Until then, the direct links on the left are the fastest way to reach me."
+                title={t(mode, 'contact.noInboxTitle')}
+                description={t(mode, 'contact.noInboxDesc')}
                 className="mt-2"
               />
             )}

@@ -52,3 +52,6 @@ hero_check.png
 # Local AI tooling
 .agents/
 .claude/
+# Original high-res cinematic PNG sources (preserved, not deployed)
+src/assets/cinematics/knight/*.png
+src/assets/cinematics/samurai/*.png

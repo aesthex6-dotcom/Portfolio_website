@@ -1,12 +1,14 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { profile } from '@/data/profile'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useUI } from '@/store/ui'
 import { scrollToId } from '@/lib/utils'
+import { t } from '@/lib/i18n'
 import { Icon } from '@/components/ui/Icon'
 import { PhotoFrame } from '@/components/ui/PhotoFrame'
 import { KnightPortal } from './KnightPortal'
+import { useBrightPhase } from '@/hooks/useBrightPhase'
 
 /** The house ease — calm, settled, cinematic. */
 const EASE = [0.16, 1, 0.3, 1] as const
@@ -30,14 +32,15 @@ const EASE_SHARP = [0.22, 1, 0.28, 1] as const
  */
 export function Hero() {
   const reduced = usePrefersReducedMotion()
-  const { openTerminal } = useUI()
+  const { openTerminal, mode } = useUI()
+  const bright = useBrightPhase()
   const heroRef = useRef<HTMLElement>(null)
   const runwayRef = useRef<HTMLElement>(null)
 
   // Two scroll progress values:
   // 1. runwayProgress: 0 → 1 over the full 600vh Knight Runway (drives KnightPortal via scrollRef)
   // 2. heroProgress: 0 → 1 over just the first 100vh (drives Hero content exit)
-  useScroll({
+  const { scrollYProgress: runwayProgress } = useScroll({
     target: runwayRef,
     offset: ['start start', 'end start'],
   })
@@ -62,6 +65,22 @@ export function Hero() {
   // This prevents it from becoming a persistent background and lets the
   // Footer (styled as the screen interior) take over as the visual destination
   const knightOpacity = useTransform(heroProgress, [0.98, 1.02], [1, 0])
+
+  // Bright-phase toggle — driven by the SCROLLABLE runway progress,
+  // not heroProgress (which tracks a fixed-position element whose
+  // viewport position never changes and therefore never advances).
+  useEffect(() => {
+    let raf: number
+    const tick = () => {
+      const p = runwayProgress?.get?.() ?? 0
+      // Bright screen dominates as the laptop fills the viewport.
+      // Toggle at p > 0.78 so text is readable as the screen fills.
+      document.documentElement.classList.toggle('bright-phase', p > 0.78)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [runwayProgress])
 
   const line = (delay: number) => ({
     initial: { y: reduced ? 0 : '110%', opacity: reduced ? 1 : 0 },
@@ -126,18 +145,18 @@ export function Hero() {
                   transition={{ duration: reduced ? 0 : 0.7, delay: reduced ? 0 : 0.1, ease: EASE }}
                 >
                   <motion.h1
-                    aria-label="Himanshu Arya"
+                    aria-label={t(mode, 'hero.headlineLine1') + ' ' + t(mode, 'hero.headlineLine2')}
                     style={{ y: titleY, scale: titleScale, transformOrigin: 'left bottom' }}
-                    className="font-hero text-[clamp(3.25rem,13vw,9.5rem)] leading-[0.84] tracking-[-0.02em] text-ink"
+                    className={bright ? "font-hero text-[clamp(3rem,12vw,8.5rem)] leading-[0.88] tracking-[-0.02em] text-ink text-dark" : "font-hero text-[clamp(3rem,12vw,8.5rem)] leading-[0.88] tracking-[-0.02em] text-ink"}
                   >
                     <span aria-hidden className="block overflow-hidden pb-[0.06em]">
                       <motion.span className="block" {...line(0.15)}>
-                        HIMANSHU
+                        {mode === 'ja' ? t(mode, 'hero.headlineLine1') : 'HIMANSHU'}
                       </motion.span>
                     </span>
                     <span aria-hidden className="block overflow-hidden pb-[0.06em]">
                       <motion.span className="block" {...line(0.32)}>
-                        ARYA
+                        {mode === 'ja' ? t(mode, 'hero.headlineLine2') : 'ARYA'}
                       </motion.span>
                     </span>
                   </motion.h1>
@@ -151,10 +170,10 @@ export function Hero() {
                     transition={{ duration: reduced ? 0 : 0.6, delay: reduced ? 0 : 0.54, ease: EASE_SHARP }}
                     className="flex flex-col gap-3"
                   >
-                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint">
-                      EDITION 01 · 2026
+                    <p className={"font-mono text-[10px] uppercase tracking-[0.2em] text-faint" + (bright ? " text-[#374151]" : "")}>
+                      {t(mode, 'hero.edition')}
                     </p>
-                    <p className="flex items-center gap-2 font-mono text-[11px] text-faint">
+                    <p className={"flex items-center gap-2 font-mono text-[11px] text-faint" + (bright ? " text-[#374151]" : "")}>
                       <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
                       {profile.availability}
                     </p>
@@ -210,7 +229,7 @@ export function Hero() {
                           className="group inline-flex items-center gap-2 text-[15px] font-medium text-ink"
                         >
                           <span className="relative">
-                            Explore the work
+                            {t(mode, 'hero.explore')}
                             <span
                               className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-ink transition-transform duration-500 ease-out group-hover:scale-x-100"
                               aria-hidden
@@ -228,7 +247,7 @@ export function Hero() {
                           onClick={openTerminal}
                           className="font-mono text-[11px] tracking-wide text-faint transition-colors hover:text-muted"
                         >
-                          open terminal
+                          {t(mode, 'hero.terminal')}
                         </button>
                       </div>
                     </motion.div>
@@ -249,7 +268,7 @@ export function Hero() {
                 {...furniture(1.05)}
                 className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint"
               >
-                PORTFOLIO · 2026
+                {t(mode, 'hero.portfolio')}
               </motion.p>
             </motion.div>
 
@@ -260,7 +279,7 @@ export function Hero() {
               transition={{ duration: reduced ? 0 : 0.4, delay: reduced ? 0 : 1.2, ease: EASE }}
               type="button"
               onClick={() => scrollToId('about')}
-              aria-label="Scroll to about"
+              aria-label={t(mode, 'hero.scroll')}
               className="absolute bottom-6 left-1/2 z-20 hidden -translate-x-1/2 md:block"
             >
               <span className="relative block h-12 w-px overflow-hidden bg-edge">

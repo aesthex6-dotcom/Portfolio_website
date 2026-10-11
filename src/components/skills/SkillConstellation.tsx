@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { skills } from '@/data/skills'
 import { seededRandom } from '@/lib/utils'
@@ -50,6 +52,7 @@ function levelLabel(level: number): string {
  * panel. The side panel works as a two-way legend (hover/click both ways).
  */
 export function SkillConstellation() {
+  const { mode } = useUI()
   const [hovered, setHovered] = useState<string | null>(null)
   const [selected, setSelected] = useState<Node | null>(null)
 
@@ -118,14 +121,14 @@ export function SkillConstellation() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-edge px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.16em] text-faint">
           <span className="flex items-center gap-2 text-muted">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-            Instrument · skill matrix
+            {t(mode, 'skills.instrument')}
           </span>
-          <span>Categories&nbsp;{String(skills.length).padStart(2, '0')}</span>
-          <span>Nodes&nbsp;{String(nodes.length).padStart(2, '0')}</span>
+          <span>{t(mode, 'skills.categories')}&nbsp;{String(skills.length).padStart(2, '0')}</span>
+          <span>{t(mode, 'skills.nodes')}&nbsp;{String(nodes.length).padStart(2, '0')}</span>
           <span className="hidden md:inline">
             Links&nbsp;{String(nodes.length + skills.length).padStart(2, '0')}
           </span>
-          <span className="ml-auto hidden sm:inline">Stable</span>
+          <span className="ml-auto hidden sm:inline">{t(mode, 'skills.stable')}</span>
         </div>
 
         <div className="relative p-4">

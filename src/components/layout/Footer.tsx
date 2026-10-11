@@ -7,6 +7,7 @@ import { profile } from '@/data/profile'
 import { navSections } from '@/data/nav'
 import { scrollToId } from '@/lib/utils'
 import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { Icon } from '@/components/ui/Icon'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
@@ -31,7 +32,7 @@ const socials: { label: string; href: string; icon: ReactNode }[] = [
  * - Matches Knight Portal exit timing for seamless transition
  */
 export function Footer() {
-  const { openTerminal } = useUI()
+  const { openTerminal, mode } = useUI()
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
   const year = new Date().getFullYear()
@@ -262,7 +263,7 @@ export function Footer() {
             aria-label="Footer"
           >
             <div className="rounded-xl bg-raised/30 p-4 backdrop-blur-sm border border-edge/30">
-              <p className="eyebrow mb-4 text-lime/60">Sections</p>
+              <p className="eyebrow mb-4 text-lime/60">{t(mode, 'footer.sections')}</p>
               <ul className="space-y-2.5">
                 {navSections.slice(0, 4).map((s) => (
                   <li key={s.id}>
@@ -271,14 +272,14 @@ export function Footer() {
                       onClick={() => scrollToId(s.id)}
                       className="text-sm text-[rgb(var(--text-rgb)/0.9)] transition-colors hover:text-lime"
                     >
-                      {s.label}
+                      {t(mode, 'nav.' + s.id)}
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
             <div className="rounded-xl bg-raised/30 p-4 backdrop-blur-sm border border-edge/30">
-              <p className="eyebrow mb-4 text-lime/60">More</p>
+              <p className="eyebrow mb-4 text-lime/60">{t(mode, 'footer.more')}</p>
               <ul className="space-y-2.5">
                 {navSections.slice(4).map((s) => (
                   <li key={s.id}>
@@ -287,7 +288,7 @@ export function Footer() {
                       onClick={() => scrollToId(s.id)}
                       className="text-sm text-[rgb(var(--text-rgb)/0.9)] transition-colors hover:text-lime"
                     >
-                      {s.label}
+                      {t(mode, 'nav.' + s.id)}
                     </button>
                   </li>
                 ))}
@@ -296,7 +297,7 @@ export function Footer() {
                     to="/resume"
                     className="text-sm text-[rgb(var(--text-rgb)/0.9)] transition-colors hover:text-lime"
                   >
-                    Resume
+                    {t(mode, 'footer.resume')}
                   </Link>
                 </li>
               </ul>
@@ -307,7 +308,7 @@ export function Footer() {
                 transition={enterTransition}
               >
                 <div className="rounded-xl bg-raised/30 p-4 backdrop-blur-sm border border-edge/30">
-                  <p className="eyebrow mb-4 text-lime/60">Elsewhere</p>
+                  <p className="eyebrow mb-4 text-lime/60">{t(mode, 'footer.elsewhere')}</p>
                   <ul className="space-y-2.5">
                     {socials.map((s) => (
                       <li key={s.label}>
@@ -342,7 +343,7 @@ export function Footer() {
               transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="text-[13px] text-muted"
             >
-              © {year} {profile.name}. Built with React, TypeScript & a healthy dose of caffeine.
+              {t(mode, 'footer.status').replace('2026', String(year))}
             </motion.p>
           </div>
           <div className="rounded-xl bg-raised/30 px-4 py-2 backdrop-blur-sm border border-edge/30 w-full sm:w-auto">
@@ -353,13 +354,13 @@ export function Footer() {
               className="flex items-center gap-3"
             >
               <p className="recruiter-hide font-mono text-[11px] text-muted">
-                psst: press <span className="text-lime">Ctrl+`</span> or try the Konami code
+                {t(mode, 'footer.tip')}
               </p>
               <button
                 type="button"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="grid h-8 w-8 place-items-center rounded-full border border-lime/30 text-muted transition-all hover:-translate-y-0.5 hover:border-lime hover:text-lime"
-                aria-label="Back to top"
+                aria-label={t(mode, 'utility.backToTop')}
               >
                 <Icon name="arrow-up" size={15} />
               </button>

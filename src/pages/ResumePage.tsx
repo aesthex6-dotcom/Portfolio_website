@@ -9,6 +9,8 @@ import { projects } from '@/data/projects'
 import { certifications } from '@/data/certifications'
 import { publicAchievements } from '@/data/achievements'
 import { usePageMeta } from '@/hooks/usePageMeta'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 /**
  * Resume page — generated entirely from `src/data/*`, so you edit one
@@ -16,6 +18,7 @@ import { usePageMeta } from '@/hooks/usePageMeta'
  * "Download PDF" triggers the browser's print → Save as PDF flow.
  */
 export function ResumePage() {
+  const { mode } = useUI()
   usePageMeta(`${profile.name} · Resume`, `Resume for ${profile.name}, ${profile.roles[0]}.`)
 
   return (
@@ -57,7 +60,7 @@ export function ResumePage() {
           className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
         >
           <Icon name="arrow-left" size={15} />
-          Back to portfolio
+          {t(mode, 'resume.backToPortfolio')}
         </Link>
         <div className="flex items-center gap-2">
           {profile.socials.github && (

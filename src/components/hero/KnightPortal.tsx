@@ -27,7 +27,9 @@ interface KnightPortalProps {
  *
  * The scene's `render(p)` engine is driven by Framer Motion's scrollYProgress.
  */
+import { CinematicSequence } from './CinematicSequence'
 export function KnightPortal({ scrollRef }: KnightPortalProps) {
+  // mode from UI context available for integration; not directly read in this file.
   const reduced = usePrefersReducedMotion()
 
   const { scrollYProgress } = useScroll({
@@ -261,8 +263,10 @@ export function KnightPortal({ scrollRef }: KnightPortalProps) {
   }, [reduced, scrollYProgress])
 
   return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0" style={{ willChange: 'transform, opacity' }}>
-      <motion.svg
+    <>
+      <CinematicSequence scrollYProgress={scrollYProgress} reduced={reduced} />
+      <div className="pointer-events-none fixed inset-0 z-[0] overflow-hidden" style={{ willChange: 'transform, opacity' }}>
+        <motion.svg
         ref={svgRef}
         viewBox="0 0 1600 900"
         preserveAspectRatio="xMidYMid slice"
@@ -531,5 +535,6 @@ export function KnightPortal({ scrollRef }: KnightPortalProps) {
         </g>
       </motion.svg>
     </div>
+    </>
   )
 }

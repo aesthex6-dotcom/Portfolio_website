@@ -1,0 +1,12 @@
+/*
+CHORUS — Display Typeface
+Creator: Dazor (Gumroad: https://dazor.gumroad.com/l/CHORUS-FONT)
+License: Commercial / Paid (individual purchase required).
+This project uses a placeholder display font (Instrument Serif from Google Fonts)
+for layout verification because the official CHORUS files are not included.
+To use the authentic CHORUS face, purchase the font from the creator's store
+and place the official WOFF2/OTF files in src/assets/fonts/chorus/.
+
+NOTE: This is NOT CHORUS — it is a design-system placeholder until the
+user provides the licensed font files.
+*/

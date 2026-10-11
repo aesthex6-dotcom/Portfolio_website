@@ -6,6 +6,8 @@ import { Reveal } from '@/components/ui/Reveal'
 import { Icon } from '@/components/ui/Icon'
 import { PhotoFrame } from '@/components/ui/PhotoFrame'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { JourneyTimeline } from './JourneyTimeline'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 
@@ -39,6 +41,7 @@ function SpecRow({ label, value, style }: SpecRowProps) {
 
 export function About() {
   const reduced = usePrefersReducedMotion()
+  const { mode } = useUI()
   const isMobile = useMediaQuery('(max-width: 767px)')
   const frameRef = useRef<HTMLElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -225,17 +228,16 @@ export function About() {
 
         <SectionHeading
           numeral="01"
-          eyebrow="About"
-          titleLines={['The person', 'behind the models']}
-          description="Not a boring paragraph: an interactive timeline of the journey into AI, plus what I'm working toward."
-          amplifyMark
+          eyebrow={t(mode, 'about.title')}
+          titleLines={[t(mode, 'about.titleLines1'), t(mode, 'about.titleLines2')]}
+          description={t(mode, 'about.description')}
         />
 
         <div className="grid gap-12 lg:grid-cols-[2fr_3fr] lg:gap-16">
           {/* Left — statement + meta index */}
           <div className="flex flex-col justify-between gap-12">
             <Reveal>
-              <p className="eyebrow mb-6">Snapshot</p>
+              <p className="eyebrow mb-6">{t(mode, 'about.snapshot')}</p>
               <div className="space-y-6">
                 {profile.intro.slice(1).map((p, i) => (
                   <p key={i} className="text-[15px] leading-relaxed text-muted md:text-base">
@@ -275,7 +277,7 @@ export function About() {
                   <span className="grid h-8 w-8 place-items-center rounded-full border border-edge text-muted">
                     <Icon name="graduation-cap" size={15} />
                   </span>
-                  <p className="eyebrow">Education</p>
+                  <p className="eyebrow">{t(mode, 'about.education')}</p>
                   <span className="ml-auto font-mono text-[11px] text-faint">01</span>
                 </div>
               </Reveal>
@@ -291,10 +293,10 @@ export function About() {
 
                   <div className="mt-6 max-w-md space-y-3">
                     <motion.div style={specRowStyles[0]}>
-                      <SpecRow label="Institution" value={profile.education.school} />
+                      <SpecRow label={t(mode, 'about.institution')} value={profile.education.school} />
                     </motion.div>
                     <motion.div style={specRowStyles[1]}>
-                      <SpecRow label="Period" value={profile.education.period} />
+                      <SpecRow label={t(mode, 'about.period')} value={profile.education.period} />
                     </motion.div>
                     <motion.div style={specRowStyles[2]}>
                       <SpecRow
@@ -337,7 +339,7 @@ export function About() {
             <div ref={contentRef}>
               <Reveal>
                 <div className="flex items-baseline justify-between border-t border-edge py-3">
-                  <p className="eyebrow">Where I&apos;m headed</p>
+                  <p className="eyebrow">{t(mode, 'about.whereImHeaded')}</p>
                   <span className="font-mono text-[11px] text-faint">
                     {String(profile.goals.length).padStart(2, '0')}
                   </span>
@@ -361,7 +363,7 @@ export function About() {
             </div>
 
             <Reveal direction="left">
-              <p className="eyebrow mb-6">The journey</p>
+              <p className="eyebrow mb-6">{t(mode, 'about.theJourney')}</p>
               <JourneyTimeline />
             </Reveal>
           </div>

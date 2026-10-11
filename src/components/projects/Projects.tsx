@@ -7,8 +7,11 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
 import { ProjectScene } from './ProjectScene'
 import { ProjectModal } from './ProjectModal'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 export function Projects() {
+  const { mode } = useUI()
   const [active, setActive] = useState<Project | null>(null)
 
   return (
@@ -16,9 +19,9 @@ export function Projects() {
       <div className="container-site">
         <SectionHeading
           numeral="03"
-          eyebrow="Projects"
-          titleLines={["What I'm", "building"]}
-          description="Each project is presented as a scene: scroll and watch it assemble, then open the full case study, architecture, challenges, and the lessons that stuck."
+          eyebrow={t(mode, 'projects.title')}
+          titleLines={[t(mode, 'projects.titleLines1'), t(mode, 'projects.titleLines2')]}
+          description={t(mode, 'projects.description')}
           amplifyMark
         />
 
@@ -37,15 +40,15 @@ export function Projects() {
                 rel="noopener noreferrer"
                 className="btn-ghost mt-4"
               >
-                More on GitHub
+                {t(mode, 'projects.moreGitHub')}
               </a>
             )}
           </>
         ) : (
           <EmptyState
             icon={<Icon name="folder" size={18} />}
-            title="Projects coming soon"
-            description="I'm currently building my first real products; they'll land here as they ship."
+            title={t(mode, 'projects.comingTitle')}
+            description={t(mode, 'projects.comingDescription')}
           />
         )}
       </div>

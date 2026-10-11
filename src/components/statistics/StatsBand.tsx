@@ -4,6 +4,8 @@ import { Reveal } from '@/components/ui/Reveal'
 import { Icon } from '@/components/ui/Icon'
 import { GitHubStats } from './GitHubStats'
 import { ContributionGraph } from './ContributionGraph'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 /**
  * A live "command center" band: GitHub identity + stats + activity heatmap.
@@ -11,14 +13,15 @@ import { ContributionGraph } from './ContributionGraph'
  * the site never shows fabricated numbers.
  */
 export function StatsBand() {
+  const { mode } = useUI()
   if (!profile.githubUsername) return null
   return (
     <section id="stats" className="relative scroll-mt-20 py-24 md:py-32">
       <div className="container-site">
         <SectionHeading
           eyebrow="Live · GitHub"
-          title="The numbers behind the work"
-          description="Fetched from the public GitHub API with caching; no build step required."
+          title={t(mode, 'stats.title')}
+          description={t(mode, 'stats.description')}
         />
 
         <Reveal>

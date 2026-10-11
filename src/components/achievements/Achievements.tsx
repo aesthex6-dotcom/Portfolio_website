@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Reveal } from '@/components/ui/Reveal'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 
 const categoryIcon: Record<string, IconName> = {
@@ -24,7 +25,7 @@ const HINTS: Record<string, string> = {
 }
 
 export function Achievements() {
-  const { isBadgeUnlocked } = useUI()
+  const { isBadgeUnlocked, mode } = useUI()
   const publicItems = achievements.filter((a) => !a.secret)
   const secretItems = achievements.filter((a) => a.secret)
 
@@ -33,9 +34,8 @@ export function Achievements() {
       <div className="container-site">
         <SectionHeading
           numeral="06"
-          eyebrow="Achievements"
-          titleLines={['Real wins,', 'quietly kept']}
-          description="Honest milestones only: hackathons, competitions, and wins as they actually happen. Plus a few secret badges hidden around the site…"
+          eyebrow={t(mode, 'achievements.title')}
+          titleLines={[t(mode, 'achievements.titleLines1'), t(mode, 'achievements.titleLines2')]}
           amplifyMark
         />
 
@@ -82,8 +82,8 @@ export function Achievements() {
         ) : (
           <EmptyState
             icon={<Icon name="trophy" size={20} />}
-            title="This section is intentionally left empty for now."
-            description="Future achievements will appear here."
+            title={t(mode, 'achievements.emptyTitle')}
+            description={t(mode, 'achievements.emptyDesc')}
           />
         )}
 
@@ -91,7 +91,7 @@ export function Achievements() {
         {secretItems.length > 0 && (
           <Reveal className="mt-16 md:mt-24">
             <div className="flex items-baseline justify-between border-t border-edge py-3">
-              <p className="eyebrow">Secret badges</p>
+              <p className="eyebrow">{t(mode, 'achievements.secretBadges')}</p>
               <span className="font-mono text-[11px] text-faint">
                 {String(secretItems.length).padStart(2, '0')}
               </span>
@@ -121,11 +121,11 @@ export function Achievements() {
                           unlocked ? 'text-muted' : 'text-faint',
                         )}
                       >
-                        {unlocked ? a.description : `Locked · hint: ${HINTS[a.id] ?? 'find it.'}`}
+                        {unlocked ? a.description : `Locked · hint: ${t(mode, 'achievements.lockedHint')}${HINTS[a.id] ?? 'find it.'}`}
                       </span>
                     </span>
                     <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint">
-                      {unlocked ? 'Unlocked' : 'Locked'}
+                      {unlocked ? t(mode, 'achievements.unlocked') : t(mode, 'achievements.locked')}
                     </span>
                   </li>
                 )

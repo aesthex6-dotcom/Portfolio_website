@@ -3,16 +3,19 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Reveal } from '@/components/ui/Reveal'
 import { Icon } from '@/components/ui/Icon'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 export function Certifications() {
+  const { mode } = useUI()
   return (
     <section id="certifications" className="scene">
       <div className="container-site">
         <SectionHeading
           numeral="05"
-          eyebrow="Certifications"
-          titleLines={['Earned, not', 'claimed']}
-          description="Only real, earned credentials appear here; I'm currently learning and preparing for industry certifications."
+          eyebrow={t(mode, 'certifications.eyebrow')}
+          titleLines={[t(mode, 'certifications.titleLines1'), t(mode, 'certifications.titleLines2')]}
+          description={t(mode, 'certifications.description')}
           amplifyMark
         />
 
@@ -71,8 +74,8 @@ export function Certifications() {
         ) : (
           <EmptyState
             icon={<Icon name="graduation-cap" size={20} />}
-            title="Currently learning and preparing for industry certifications"
-            description="No credentials to show yet; they'll appear here the moment they're earned."
+            title={t(mode, 'certifications.emptyTitle')}
+            description={t(mode, 'certifications.emptyDesc')}
           />
         )}
       </div>

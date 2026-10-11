@@ -5,7 +5,33 @@
 /* ------------------------------------------------------------------ */
 /*  Fonts                                                              */
 /* ------------------------------------------------------------------ */
-/* Sonder Regular — the Hero display title and every section numeral. */
+/* CHORUS — display identity (placeholder: Instrument Serif, see
+   src/assets/fonts/CHORUS_LICENSE.txt for license + replacement notes) */
+@font-face {
+  font-family: 'CHORUS';
+  src: url('./assets/fonts/InstrumentSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'CHORUS';
+  src: url('https://fonts.gstatic.com/s/instrumentserif/v5/jizHRFtNs2ka5fXjeivQ4LroWlx-2zI.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Instrument Serif — cohesive editorial serif for Japanese fallback support */
+@font-face {
+  font-family: 'InstrumentSerif';
+  src: url('./assets/fonts/InstrumentSerif-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Sonder Regular — the portfolio watermark / numeric marks (preserved) */
 @font-face {
   font-family: 'Sonder';
   src: url('./assets/fonts/SonderRegular.otf') format('opentype');
@@ -15,60 +41,57 @@
 }
 
 /* ------------------------------------------------------------------ */
-/*  Design tokens — "Industrial"                                      */
-/*  A precise, engineered charcoal. One functional signature (lime).   */
-/*  Everything else is cool neutral. Green is functional-only.         */
+/*  Design tokens — "Amber / Slate"                                   */
+/*  Warm orange surfaces with deep slate-blue typography.            */
+/*  Slate-blue surfaces with warm orange typography.               */
 /* ------------------------------------------------------------------ */
 :root {
   color-scheme: dark;
 
-  /* Ground — deep neutral charcoal (not pure black) */
-  --bg: #171717;
-  --bg-rgb: 23 23 23;
-  --bg-soft: #1a1a1a;
-  --bg-soft-rgb: 26 26 26;
-  --surface: #1f1f1f;
-  --surface-rgb: 31 31 31;
-  --raised: #262626;
-  --raised-rgb: 38 38 38;
+  /* Ground — deep slate blue (not pure black) */
+  --bg: #1e2a34;
+  --bg-rgb: 30 42 52;
+  --bg-soft: #233039;
+  --bg-soft-rgb: 35 48 57;
+  --surface: #283845;
+  --surface-rgb: 40 56 69;
+  --raised: #2f4150;
+  --raised-rgb: 47 65 80;
 
-  /* Hairlines — cool off-white, low alpha. The site's primary texture. */
-  --line: rgba(245, 247, 242, 0.08);
-  --line-strong: rgba(245, 247, 242, 0.18);
+  /* Hairlines — warm orange, low alpha. The site's primary texture. */
+  --line: rgba(255, 166, 73, 0.12);
+  --line-strong: rgba(255, 166, 73, 0.28);
 
-  /* Type — cool off-white scale */
-  --text: #f5f7f2;
-  --text-rgb: 245 247 242;
-  --muted: #a3a5a0;
-  --muted-rgb: 163 165 160;
-  /* Faint is the *quiet* tier, not the *invisible* one — it must stay legible
-     at 9px mono. #8e908a clears 4.5:1 WCAG AA against the panel ground. */
-  --faint: #8e908a;
-  --faint-rgb: 142 144 138;
+  /* Type — warm orange scale */
+  --text: #FFF3E3;
+  --text-rgb: 255 243 227;
+  --muted: #FFE2BD;
+  --muted-rgb: 255 226 189;
+  /* Faint — readable secondary, not invisible */
+  --faint: #FFF3E3;
+  --faint-rgb: 255 243 227;
 
-  /* The functional accent — lime. Functional-only: active, hover, focus,
-     progress, terminal prompt. Never a background tint or hairline.
-     accent-2/3 are green relatives for highlight and depth. */
-  --accent: #c7ff38;
-  --accent-rgb: 199 255 56;
-  --accent-2: #d7ff6a;
-  --accent-2-rgb: 215 255 106;
-  --accent-3: #a3d82c;
-  --accent-3-rgb: 163 216 44;
+  /* The functional accent — warm orange. */
+  --accent: #FFA649;
+  --accent-rgb: 255 166 73;
+  --accent-2: #ffc07a;
+  --accent-2-rgb: 255 192 122;
+  --accent-3: #e8952f;
+  --accent-3-rgb: 232 149 47;
 
-  /* Status — muted, editorial (functional signal, not decorative) */
+  /* Status — muted, editorial */
   --ok: #8fb88a;
   --ok-rgb: 143 184 138;
-  --warn: #a8a89e;
-  --warn-rgb: 168 168 158;
-  --danger: #c48a8a;
-  --danger-rgb: 196 138 138;
+  --warn: #d4935f;
+  --warn-rgb: 212 147 95;
+  --danger: #e07a7a;
+  --danger-rgb: 224 122 122;
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'CHORUS', 'Space Grotesk', system-ui, sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-  /* Display voice only — Sonder, bundled locally */
-  --font-hero: 'Sonder', 'Space Grotesk', system-ui, sans-serif;
+  /* Display voice — CHORUS */
+  --font-hero: 'CHORUS', 'Space Grotesk', system-ui, sans-serif;
 
   /* The floating control rail — raised off the viewport floor so the tools
      sit inside the composition rather than pinned to the bottom corner.
@@ -78,7 +101,7 @@
   /* Materiality — tuned by the Atmosphere control. Grain is the film over the
      ink; the vignette is the room the composition sits in. Both are *felt*,
      never obvious. */
-  --grain-opacity: 0.045;
+  --grain-opacity: 0.015;
   --vignette-opacity: 0.45;
 
   /* The house ease — calm, settled, cinematic. */
@@ -87,16 +110,16 @@
 
 /* Hacker mode — toggled by the Konami code / terminal. A warm phosphor. */
 html.hacker-mode {
-  --accent: #8fd8a4;
-  --accent-rgb: 143 216 164;
-  --accent-2: #b4e6c2;
-  --accent-2-rgb: 180 230 194;
-  --accent-3: #5ea877;
-  --accent-3-rgb: 94 168 119;
-  --text: #d9f0df;
-  --text-rgb: 217 240 223;
-  --muted: #9ec6a9;
-  --muted-rgb: 158 198 169;
+  --accent: #ffc07a;
+  --accent-rgb: 255 192 122;
+  --accent-2: #ffd3a0;
+  --accent-2-rgb: 255 211 160;
+  --accent-3: #e8952f;
+  --accent-3-rgb: 232 149 47;
+  --text: #ffe6cc;
+  --text-rgb: 255 230 204;
+  --muted: #f0b87a;
+  --muted-rgb: 240 184 122;
 }
 
 /* Recruiter mode — quiet the decorative CSS motion for a scannable dashboard.
@@ -117,6 +140,58 @@ html.recruiter-mode .animate-ping {
 /* Elements marked .recruiter-hide (decorative easter-egg hints, etc.) disappear in Recruiter Mode. */
 html.recruiter-mode .recruiter-hide {
   display: none !important;
+}
+
+/* Bright-phase typography: slate-blue text on orange / light backgrounds.
+   Activated by .bright-phase class on <html>, synchronized with KnightPortal. */
+html.bright-phase {
+  --bg: #FFA649;
+  --bg-rgb: 255 166 73;
+  --bg-soft: #ffb77a;
+  --bg-soft-rgb: 255 183 122;
+  --surface: #283845;
+  --surface-rgb: 40 56 69;
+  --raised: #30455a;
+  --raised-rgb: 48 69 90;
+
+  --text: #FFF3E3;
+  --text-rgb: 255 243 227;
+  --muted: #FFE2BD;
+  --muted-rgb: 255 226 189;
+  --faint: #FFF8F0;
+  --faint-rgb: 96 116 138;
+}
+html.bright-phase body {
+  color-scheme: light;
+}
+/* Force readable slate-blue text on orange / bright surfaces. */
+html.bright-phase .text-ink,
+html.bright-phase .font-display,
+html.bright-phase h1,
+html.bright-phase h2,
+html.bright-phase h3,
+html.bright-phase .sonder-mark,
+html.bright-phase .scene-title,
+html.bright-phase .statement {
+  color: #FFF3E3 !important;
+}
+/* Named bright-utility for JSX on orange surfaces */
+.text-dark { color: #283845 !important; }
+.text-dark-secondary { color: #41536b !important; }
+html.bright-phase .text-muted,
+html.bright-phase .text-faint,
+html.bright-phase .eyebrow,
+html.bright-phase .chip {
+  color: #FFE2BD !important;
+}
+html.bright-phase a,
+html.bright-phase button,
+html.bright-phase .btn-ghost,
+html.bright-phase .btn-primary {
+  color: #FFF3E3 !important;
+}
+body, h1, h2, h3, h4, p, a, button, span, div {
+  transition: color 400ms ease, border-color 400ms ease;
 }
 
 /* ------------------------------------------------------------------ */
@@ -140,7 +215,7 @@ html.recruiter-mode .recruiter-hide {
 
   ::selection {
     background: color-mix(in srgb, var(--accent) 35%, transparent);
-    color: #fff;
+    color: #283845;
   }
 
   /* Scrollbar */
@@ -411,7 +486,7 @@ html.recruiter-mode .recruiter-hide {
     inset: 0;
     pointer-events: none;
     z-index: 60;
-    opacity: 0.015;
+    opacity: 0.005;
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='1'/%3E%3C/svg%3E");
   }
@@ -439,6 +514,14 @@ html.recruiter-mode .recruiter-hide {
 
   .glow-dot {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+  .surface-orange {
+    background: var(--surface);
+    border-color: rgba(255,166,73,0.15);
+  }
+  .surface-slate {
+    background: var(--bg);
+    border-color: rgba(255,166,73,0.12);
   }
 }
 

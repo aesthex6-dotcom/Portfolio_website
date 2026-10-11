@@ -4,6 +4,7 @@ import { Github } from 'lucide-react'
 import { profile } from '@/data/profile'
 import { recruiter } from '@/data/recruiter'
 import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import { scrollToId } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { GlowOrbs } from '@/components/ui/GlowOrbs'
@@ -12,6 +13,7 @@ import { GlowOrbs } from '@/components/ui/GlowOrbs'
 const EASE = [0.16, 1, 0.3, 1] as const
 
 export function RecruiterHero() {
+  const { mode } = useUI()
   const { setChatOpen } = useUI()
 
   return (
@@ -64,11 +66,11 @@ export function RecruiterHero() {
           <span className="absolute inset-y-0 left-0 w-px bg-edge-strong" aria-hidden />
 
           <div className="p-6 md:p-8">
-            <p className="eyebrow mb-6">Recruiter overview</p>
+            <p className="eyebrow mb-6">{t(mode, 'recruiter.heroTitle')}</p>
 
             <div className="grid gap-8 md:grid-cols-2">
               <div>
-                <h2 className="font-display text-[15px] font-semibold text-ink">Current Focus</h2>
+                <h2 className="font-display text-[15px] font-semibold text-ink">{t(mode, 'recruiter.currentFocus')}</h2>
                 <ul className="mt-3 space-y-2.5">
                   {recruiter.currentFocus.map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm text-muted">
@@ -80,7 +82,7 @@ export function RecruiterHero() {
               </div>
 
               <div>
-                <h2 className="font-display text-[15px] font-semibold text-ink">Looking For</h2>
+                <h2 className="font-display text-[15px] font-semibold text-ink">{t(mode, 'recruiter.lookingFor')}</h2>
                 <ul className="mt-3 space-y-2.5">
                   {recruiter.lookingFor.map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm text-muted">
@@ -96,7 +98,7 @@ export function RecruiterHero() {
             <div className="mt-8 flex flex-wrap items-center gap-2.5">
               <Link to={profile.socials.resume} className="btn-primary !px-4 !py-2 !text-[13px]">
                 <Icon name="file-down" size={15} />
-                Download Resume
+                {t(mode, 'recruiter.downloadResume')}
               </Link>
 
               {profile.socials.github && (
@@ -107,7 +109,7 @@ export function RecruiterHero() {
                   className="btn-ghost !px-4 !py-2 !text-[13px]"
                 >
                   <Github className="h-4 w-4" />
-                  View GitHub
+                  {t(mode, 'recruiter.viewGithub')}
                 </a>
               )}
 
@@ -117,7 +119,7 @@ export function RecruiterHero() {
                 className="btn-ghost !px-4 !py-2 !text-[13px]"
               >
                 <Icon name="mail" size={15} />
-                Contact
+                {t(mode, 'recruiter.contact')}
               </button>
 
               <button
@@ -126,7 +128,7 @@ export function RecruiterHero() {
                 className="btn-ghost !px-4 !py-2 !text-[13px]"
               >
                 <Icon name="bot" size={15} />
-                Ask AI
+                {t(mode, 'recruiter.askAI')}
               </button>
 
               <button
@@ -135,14 +137,14 @@ export function RecruiterHero() {
                 className="btn-ghost !px-4 !py-2 !text-[13px]"
               >
                 <Icon name="rocket" size={15} />
-                View Best Project
+                {t(mode, 'recruiter.viewBestProject')}
               </button>
             </div>
 
             {/* Reading time */}
             <p className="mt-6 flex items-center gap-2 border-t border-edge pt-4 font-mono text-[12px] text-faint">
               <Icon name="clock" size={14} aria-hidden />
-              {recruiter.readingTime}
+              {t(mode, 'recruiter.readingTime')}
             </p>
           </div>
         </motion.div>

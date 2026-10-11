@@ -1,4 +1,6 @@
 import { mission } from '@/data/mission'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 import type { MissionStatus } from '@/types'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Reveal } from '@/components/ui/Reveal'
@@ -12,14 +14,15 @@ const STATUS: Record<MissionStatus, { label: string; dot: string }> = {
 }
 
 export function Mission() {
+  const { mode } = useUI()
   return (
     <section id="mission" className="scene">
       <div className="container-site">
         <SectionHeading
           numeral="04"
-          eyebrow="Current Mission"
-          titleLines={["What I'm building", "right now"]}
-          description="No fake experience here; just an honest snapshot of what I’m actively learning, building, and working toward."
+          eyebrow={t(mode, 'mission.eyebrow')}
+          titleLines={[t(mode, 'mission.title'), t(mode, 'mission.subtitle')]}
+          description={t(mode, 'mission.description')}
           amplifyMark
         />
 
@@ -57,11 +60,11 @@ export function Mission() {
           <figure className="border-t border-edge pt-10 md:pt-14">
             <div className="flex items-center gap-4">
               <span className="inline-block h-12 w-px bg-edge" aria-hidden />
-              <span className="eyebrow">The honest version</span>
+              <span className="eyebrow">{t(mode, 'mission.honest')}</span>
             </div>
             <blockquote className="mt-8 max-w-4xl font-display text-2xl font-semibold leading-snug tracking-[-0.02em] text-ink md:text-4xl">
-              {mission.quote.text}{' '}
-              <span className="text-accent">{mission.quote.emphasis}</span>
+              {t(mode, 'mission.quoteText')}{' '}
+              <span className="inline-block bg-accent px-1.5 py-0.5 text-ink">{t(mode, 'mission.quoteEmphasis')}</span>
             </blockquote>
           </figure>
         </Reveal>

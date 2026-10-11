@@ -6,6 +6,8 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Reveal } from '@/components/ui/Reveal'
 import { SkillConstellation } from './SkillConstellation'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { useUI } from '@/store/ui'
+import { t } from '@/lib/i18n'
 
 /**
  * One ranked capability row — an instrument, not a list item.
@@ -89,6 +91,7 @@ function SignalRow({ skill, index }: { skill: SkillNode; index: number }) {
 }
 
 export function Skills() {
+  const { mode } = useUI()
   const allSkills = skills
     .flatMap((c) => c.skills)
     .sort((a, b) => b.level - a.level)
@@ -129,9 +132,9 @@ export function Skills() {
       <div className="container-site relative">
         <SectionHeading
           numeral="02"
-          eyebrow="Skills"
+          eyebrow={t(mode, 'skills.title')}
           titleLines={['A constellation', 'of what I build with']}
-          description="Skills read as one engineered system, not a cloud of badges: an instrument you can inspect. Hover a node, or pick a subsystem."
+          description={t(mode, 'skills.subtitle')}
           amplifyMark
         />
 
@@ -149,9 +152,9 @@ export function Skills() {
             an instrument that activates as the scroll reaches it. */}
         <div className="mt-12 md:mt-16">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-            <p className="eyebrow">Top capabilities</p>
+            <p className="eyebrow">{t(mode, 'skills.topCapabilities')}</p>
             <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-faint">
-              Ranked by signal · an honest current state
+              {t(mode, 'skills.ranked')}
             </p>
           </div>
 
@@ -173,20 +176,20 @@ export function Skills() {
         {/* Motion density indicator — subtle reminder of scroll velocity */}
         {!reduced && (
           <motion.div
+            className="mt-8 flex items-center justify-center gap-2 font-mono text-[10px] text-faint"
+            aria-hidden
             style={{
               opacity: densityOpacity,
               scale: densityScale,
             }}
-            className="mt-8 flex items-center justify-center gap-2 font-mono text-[10px] text-faint"
-            aria-hidden
           >
             <span className="relative h-1 w-12 overflow-hidden rounded-full bg-edge/30">
               <motion.div
                 style={{ width: densityWidth }}
-                className="h-full bg-lime"
+                className="h-full bg-accent"
               />
             </span>
-            <span>scroll velocity</span>
+            <span className="text-faint">{t(mode, 'skills.velocity')}</span>
           </motion.div>
         )}
       </div>
