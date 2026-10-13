@@ -70,16 +70,13 @@ export function Hero() {
   // not heroProgress (which tracks a fixed-position element whose
   // viewport position never changes and therefore never advances).
   useEffect(() => {
-    let raf: number
-    const tick = () => {
-      const p = runwayProgress?.get?.() ?? 0
-      // Bright screen dominates as the laptop fills the viewport.
-      // Toggle at p > 0.78 so text is readable as the screen fills.
+    if (!runwayProgress) return
+    const updateBright = (p: number) => {
       document.documentElement.classList.toggle('bright-phase', p > 0.78)
-      raf = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    updateBright(runwayProgress.get())
+    const unsub = runwayProgress.on('change', updateBright)
+    return () => unsub()
   }, [runwayProgress])
 
   const line = (delay: number) => ({
