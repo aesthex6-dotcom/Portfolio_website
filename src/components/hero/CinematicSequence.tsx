@@ -69,7 +69,7 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
   // Evict distant frames when cache exceeds memory budget
   const evictDistantFrames = useCallback((currentIdx: number, currentBase: SequenceBase) => {
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const maxCapacity = isMobile ? 16 : 32
+    const maxCapacity = isMobile ? 8 : 16
 
     const cache = cacheRef.current
     if (cache.size <= maxCapacity) return
@@ -96,7 +96,7 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
 
   // Process next items in loading queue
   const processQueue = useCallback(() => {
-    const MAX_CONCURRENT = 4
+    const MAX_CONCURRENT = 3
     const inFlight = inFlightRef.current
     const queue = queueRef.current
     const cache = cacheRef.current
@@ -152,8 +152,8 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
   // Request frames around target index with directional priority
   const requestFrames = useCallback(
     (targetIdx: number, targetBase: SequenceBase, dir: 1 | -1) => {
-      const aheadCount = 8
-      const behindCount = 3
+      const aheadCount = 6
+      const behindCount = 2
       const lookahead: number[] = []
 
       // Priority 1: Current target frame
