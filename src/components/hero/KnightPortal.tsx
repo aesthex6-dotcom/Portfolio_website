@@ -174,7 +174,7 @@ export function KnightPortal({ scrollRef }: KnightPortalProps) {
     const render = (p: number) => {
       p = clamp(p, 0, 1)
 
-      const sScr = track(p, [[0, 1], [0.45, 1.04], [0.62, 1.3], [0.8, 1.95], [0.9, 4.6], [1, 9.6]])
+      const sScr = track(p, [[0, 1], [0.45, 1.04], [0.62, 1.3], [0.75, 4.6], [0.8, 5.8], [0.9, 7.2], [1, 9.6]])
       place(L.screen, sScr)
       if (L.screen) L.screen.setAttribute('opacity', track(p, [[0.38, 0], [0.48, 1]]).toFixed(3))
 
