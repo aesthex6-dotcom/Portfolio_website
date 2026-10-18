@@ -8,7 +8,7 @@ import { useSoundtrack } from '@/store/soundtrackStore'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { VinylButton } from '@/components/soundtrack/VinylButton'
 import { AtmosphereControl } from './AtmosphereControl'
-import { Icon, type IconName } from '@/components/ui/Icon'
+import { Icon } from '@/components/ui/Icon'
 import { cn } from '@/lib/utils'
 import { useRef } from 'react'
 
@@ -26,11 +26,10 @@ import { useRef } from 'react'
  * the Hero content exits and the portal sequence completes.
  */
 export function UtilityDock() {
-  const { chatOpen, setChatOpen, recruiterMode, setRecruiterMode, hackerMode, setHackerMode, mode } = useUI()
+  const { chatOpen, setChatOpen, mode, setExperienceMode } = useUI()
   const { isOpen } = useSoundtrack()
   const reduced = usePrefersReducedMotion()
   const { pathname } = useLocation()
-  const [modeOpen, setModeOpen] = useState(false)
 
   // Track the Knight Runway scroll progress to reveal the dock at the right moment.
   // The runway is 600vh; we reveal after ~15% progress (≈90vh scrolled).
@@ -109,69 +108,18 @@ export function UtilityDock() {
         </motion.button>
       )}
 
-      {/* Mode selector — Recruiter / Standard / Hacker. Collapsed into a small
-          trigger above the room light; the popover lists the three modes with
-          the active one marked. This makes the existing HTML-class modes
-          (recruiter-mode, hacker-mode) visible and toggleable for the visitor. */}
-      <div className="relative flex flex-col items-center">
-        <motion.button
-          type="button"
-          onClick={() => setModeOpen((v) => !v)}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          aria-label={t(mode, 'utility.switchMode')}
-          aria-expanded={modeOpen}
-          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-edge bg-surface/80 backdrop-blur-xl transition-colors duration-300 hover:border-edge-strong"
-        >
-          <Icon name={recruiterMode ? 'gauge' : hackerMode ? 'terminal' : 'eye'} size={15} className={recruiterMode ? 'text-accent' : 'text-muted'} />
-        </motion.button>
-
-        <AnimatePresence>
-          {modeOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.96 }}
-              transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-full mb-2 flex w-44 flex-col gap-1 rounded-2xl border border-edge bg-surface/95 p-1.5 shadow-lift backdrop-blur-xl"
-            >
-              <ModeOption
-                active={!recruiterMode && !hackerMode}
-                icon="eye"
-                label={t(mode, 'recruiter.switchStandard')}
-                hint={t(mode, 'recruiter.standardHint')}
-                onClick={() => {
-                  setRecruiterMode(false)
-                  setHackerMode(false)
-                  setModeOpen(false)
-                }}
-              />
-              <ModeOption
-                active={recruiterMode}
-                icon="gauge"
-                label={t(mode, 'recruiter.switchQuick')}
-                hint={t(mode, 'recruiter.quickHint')}
-                onClick={() => {
-                  setRecruiterMode(true)
-                  setHackerMode(false)
-                  setModeOpen(false)
-                }}
-              />
-              <ModeOption
-                active={hackerMode}
-                icon="terminal"
-                label={t(mode, 'recruiter.switchHacker')}
-                hint={t(mode, 'recruiter.hackerHint')}
-                onClick={() => {
-                  setHackerMode(true)
-                  setRecruiterMode(false)
-                  setModeOpen(false)
-                }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {/* Experience Selector trigger */}
+      <motion.button
+        type="button"
+        onClick={() => setExperienceMode(null)}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.97 }}
+        aria-label={mode === 'ja' ? 'エクスペリエンスを選択' : 'Choose Experience'}
+        title={mode === 'ja' ? 'エクスペリエンスを選択' : 'Choose Experience'}
+        className="grid h-10 w-10 cursor-pointer place-items-center rounded-full border border-edge bg-surface/80 backdrop-blur-xl transition-colors duration-300 hover:border-edge-strong text-muted hover:text-ink"
+      >
+        <Icon name="layers" size={15} />
+      </motion.button>
 
       {/* Language mode selector — English / Japanese. Independent
           from the recruiter/hacker mode selector above to avoid interaction conflicts. */}
@@ -274,32 +222,5 @@ function LanguageModeSelector() {
   )
 }
 
-interface ModeOptionProps {
-  active: boolean
-  icon: IconName
-  label: string
-  hint: string
-  onClick: () => void
-}
-
-function ModeOption({ active, icon, label, hint, onClick }: ModeOptionProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cn(
-        'flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors duration-200',
-        active ? 'bg-accent/10' : 'hover:bg-raised/60',
-      )}
-    >
-      <Icon name={icon} size={15} className={active ? 'text-accent' : 'text-muted'} />
-      <span className="flex flex-col">
-        <span className={cn('text-[13px] font-medium', active ? 'text-accent' : 'text-ink')}>
-          {label}
-        </span>
-        <span className="text-[10px] text-faint">{hint}</span>
-      </span>
-    </button>
-  )
-}
+/* ModeOption removed — obsolete Standard/Quick Overview/Hacker menu
+   eliminated with the floating eye button control. */

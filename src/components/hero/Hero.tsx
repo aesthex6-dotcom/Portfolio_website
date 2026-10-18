@@ -20,15 +20,10 @@ const EASE_SHARP = [0.22, 1, 0.28, 1] as const
  * Sonder, dominating the top-left. Everything else is composed off-axis
  * around the negative space — an editorial spread, not a centered stack.
  *
- * This component now serves TWO roles:
- * 1. It provides the Knight Portal cinematic runway (~600vh) — the Knight scene
- *    is fixed during this runway and the scroll progress drives its progress engine.
- * 2. It renders the editorial Hero content (title, portrait, CTA) that animates out
- *    during the first ~100vh of the runway, then disappears.
- *
- * The portfolio sections (About, Skills, Projects, etc.) are rendered in Home.tsx
- * AFTER the Knight Runway, so at p=1 the laptop screen visually becomes the
- * website background and the content emerges from within it.
+ * This component serves two roles:
+ * 1. It provides the Knight Portal cinematic runway (~360vh) — the Knight scene
+ *    is fixed during this runway and scroll progress drives its progress engine.
+ * 2. It renders the editorial Hero content that animates out during the first ~100vh.
  */
 export function Hero() {
   const reduced = usePrefersReducedMotion()
@@ -38,8 +33,8 @@ export function Hero() {
   const runwayRef = useRef<HTMLElement>(null)
 
   // Two scroll progress values:
-  // 1. runwayProgress: 0 → 1 over the full 600vh Knight Runway (drives KnightPortal via scrollRef)
-  // 2. heroProgress: 0 → 1 over just the first 100vh (drives Hero content exit)
+  // 1. runwayProgress: 0 → 1 over the 360vh Knight Runway (drives KnightPortal)
+  // 2. heroProgress: 0 → 1 over just the first 100vh (drives initial Hero content exit)
   const { scrollYProgress: runwayProgress } = useScroll({
     target: runwayRef,
     offset: ['start start', 'end start'],
@@ -58,17 +53,13 @@ export function Hero() {
   const portraitScale = useTransform(heroProgress, [0, 1], [1, reduced ? 1 : 1.06])
   const runningHeadY = useTransform(heroProgress, [0, 1], [0, reduced ? 0 : -18])
 
-  // Fade out Hero content once heroProgress passes ~0.8 (content fully gone by p=1)
+  // Fade out initial Hero content once heroProgress passes ~0.8
   const heroOpacity = useTransform(heroProgress, [0.5, 1], [1, 0])
 
   // Fade out Knight Portal after the runway completes (~p=0.98 to 1.02)
-  // This prevents it from becoming a persistent background and lets the
-  // Footer (styled as the screen interior) take over as the visual destination
-  const knightOpacity = useTransform(heroProgress, [0.98, 1.02], [1, 0])
+  const knightOpacity = useTransform(runwayProgress, [0.98, 1.02], [1, 0])
 
-  // Bright-phase toggle — driven by the SCROLLABLE runway progress,
-  // not heroProgress (which tracks a fixed-position element whose
-  // viewport position never changes and therefore never advances).
+  // Bright-phase toggle — driven by the SCROLLABLE runway progress
   useEffect(() => {
     if (!runwayProgress) return
     const updateBright = (p: number) => {
@@ -91,19 +82,12 @@ export function Hero() {
     transition: { duration: reduced ? 0 : 0.8, delay, ease: EASE_SHARP },
   })
 
-  // The runway height: 600vh gives ~600 viewport heights of scroll distance
-  // for the Knight cinematic sequence. This matches the standalone scene's
-  // 620vh but is slightly shorter to account for Hero content animating out.
-  const RUNWAY_VH = 600
+  // Concise runway height: 360vh provides pristine cinematic pacing
+  // while eliminating excessive scrolling before portfolio content begins.
+  const RUNWAY_VH = 360
 
   return (
     <>
-      {/*
-         KNIGHT RUNWAY — the scroll container that drives the cinematic sequence.
-         This is a dedicated element (not the Hero section) so its 600vh height
-         provides enough scroll distance for the full 0→1 Knight progress.
-         The KnightPortal is fixed to the viewport during this entire runway.
-      */}
       <section
         ref={runwayRef}
         id="knight-runway"
@@ -111,31 +95,23 @@ export function Hero() {
         aria-hidden="true"
         style={{ height: `${RUNWAY_VH}vh` }}
       >
-        {/* Knight Portal scene — fixed to viewport, fills the screen.
-             Fades out after runway so Footer (screen interior) becomes destination. */}
+        {/* Knight Portal scene — fixed to viewport */}
         <motion.div style={{ opacity: knightOpacity }} className="fixed inset-0">
           <KnightPortal scrollRef={runwayRef} />
         </motion.div>
 
-        {/*
-           HERO CONTENT — editorial spread that overlays the Knight scene.
-           Fixed to the viewport so it stays at the top while the runway provides
-           scroll distance. Animates out during the first ~100vh of scroll
-           (heroProgress 0→1), then disappears.
-        */}
+        {/* Initial Hero Content (Fades out during first 100vh) */}
         <section
           ref={heroRef}
           id="top"
           className="fixed inset-0 min-h-[100svh] overflow-hidden pointer-events-none"
         >
           <div className="pointer-events-auto">
-            {/* Hero content — fades out as heroProgress reaches 1 */}
             <motion.div
               style={{ y: frameY, opacity: heroOpacity }}
               className="relative z-10 grid min-h-[100svh] grid-cols-1 px-6 pb-8 pt-24 md:px-10 lg:grid-cols-[1fr_1fr] lg:pb-12 lg:pt-32"
             >
               <div className="flex flex-col justify-between">
-                {/* Title — entrance from left */}
                 <motion.div
                   initial={{ x: reduced ? 0 : -60, opacity: reduced ? 1 : 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -146,12 +122,12 @@ export function Hero() {
                     style={{ y: titleY, scale: titleScale, transformOrigin: 'left bottom' }}
                     className={bright ? "font-hero text-[clamp(3rem,12vw,8.5rem)] leading-[0.88] tracking-[-0.02em] text-ink text-dark" : "font-hero text-[clamp(3rem,12vw,8.5rem)] leading-[0.88] tracking-[-0.02em] text-ink"}
                   >
-                    <span aria-hidden className="block overflow-hidden pb-[0.06em]">
+                    <span aria-hidden className="block overflow-visible pb-[0.12em] pt-[0.04em]">
                       <motion.span className="block" {...line(0.15)}>
                         {mode === 'ja' ? t(mode, 'hero.headlineLine1') : 'HIMANSHU'}
                       </motion.span>
                     </span>
-                    <span aria-hidden className="block overflow-hidden pb-[0.06em]">
+                    <span aria-hidden className="block overflow-visible pb-[0.12em] pt-[0.04em]">
                       <motion.span className="block" {...line(0.32)}>
                         {mode === 'ja' ? t(mode, 'hero.headlineLine2') : 'ARYA'}
                       </motion.span>
@@ -159,7 +135,6 @@ export function Hero() {
                   </motion.h1>
                 </motion.div>
 
-                {/* Page furniture + availability — bottom-left, entrance from below */}
                 <motion.div style={{ y: furnitureY }} className="mt-16">
                   <motion.div
                     initial={{ y: reduced ? 0 : 40, opacity: reduced ? 1 : 0 }}
@@ -178,9 +153,7 @@ export function Hero() {
                 </motion.div>
               </div>
 
-              {/* Portrait + supporting copy — the right half of the spread */}
               <div className="flex flex-col justify-between gap-20">
-                {/* Portrait — entrance from right, then continuous floating */}
                 <motion.div
                   style={{ y: portraitY, scale: portraitScale }}
                   className="ml-auto w-fit"
@@ -222,7 +195,7 @@ export function Hero() {
                       <div className="mt-6 flex flex-col items-end gap-3">
                         <button
                           type="button"
-                          onClick={() => scrollToId('projects')}
+                          onClick={() => scrollToId('about')}
                           className="group inline-flex items-center gap-2 text-[15px] font-medium text-ink"
                         >
                           <span className="relative">
@@ -253,7 +226,6 @@ export function Hero() {
               </div>
             </motion.div>
 
-            {/* Running head — top-right, entrance from right, then floating */}
             <motion.div
               initial={{ x: reduced ? 0 : 40, opacity: reduced ? 1 : 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -269,7 +241,6 @@ export function Hero() {
               </motion.p>
             </motion.div>
 
-            {/* Scroll cue — bottom-center, entrance from below, then floating */}
             <motion.button
               initial={{ y: reduced ? 0 : 20, opacity: reduced ? 1 : 0 }}
               animate={{ y: 0, opacity: 1 }}

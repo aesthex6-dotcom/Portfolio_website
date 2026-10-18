@@ -33,12 +33,16 @@ export interface UIState {
   /** Global site mode: 'en' = English (default), 'ja' = Japanese. */
   mode: 'en' | 'ja'
   setMode: (mode: 'en' | 'ja') => void
+  /** Dual-experience mode: 'professional' (recruiter/fast), 'chill' (cinematic), or null (selector). */
+  experienceMode: 'professional' | 'chill' | null
+  setExperienceMode: (mode: 'professional' | 'chill' | null) => void
 }
 
 const UIContext = createContext<UIState | null>(null)
 
 const BADGES_KEY = 'portfolio:badges'
 const MODE_KEY = 'portfolio:mode'
+const EXPERIENCE_KEY = 'portfolio:experience'
 
 function loadMode(): 'en' | 'ja' {
   try {
@@ -48,6 +52,16 @@ function loadMode(): 'en' | 'ja' {
     /* storage unavailable — fall through */
   }
   return 'en'
+}
+
+function loadExperienceMode(): 'professional' | 'chill' | null {
+  try {
+    const raw = sessionStorage.getItem(EXPERIENCE_KEY)
+    if (raw === 'professional' || raw === 'chill') return raw
+  } catch {
+    /* storage unavailable — fall through */
+  }
+  return null
 }
 
 function loadBadges(): string[] {
@@ -70,6 +84,7 @@ export function UIProvider({ children }: { children: ReactNode }) {
   const [snakeOpen, setSnakeOpen] = useState(false)
   const [unlockedBadges, setUnlockedBadges] = useState<string[]>(loadBadges)
   const [mode, setModeState] = useState<'en' | 'ja'>(loadMode)
+  const [experienceMode, setExperienceModeState] = useState<'professional' | 'chill' | null>(loadExperienceMode)
 
   // Hacker mode + matrix mutate <html> classes for global theming.
   useEffect(() => {
@@ -84,6 +99,19 @@ export function UIProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle('recruiter-mode', recruiterMode)
   }, [recruiterMode])
+
+  // Persist experience mode
+  useEffect(() => {
+    try {
+      if (experienceMode) {
+        sessionStorage.setItem(EXPERIENCE_KEY, experienceMode)
+      } else {
+        sessionStorage.removeItem(EXPERIENCE_KEY)
+      }
+    } catch {
+      /* storage unavailable — ignore */
+    }
+  }, [experienceMode])
 
   // Persist badges
   useEffect(() => {
@@ -138,6 +166,10 @@ export function UIProvider({ children }: { children: ReactNode }) {
     setRecruiterModeState(v)
   }, [])
 
+  const setExperienceMode = useCallback((v: 'professional' | 'chill' | null) => {
+    setExperienceModeState(v)
+  }, [])
+
   const unlockBadge = useCallback((id: string) => {
     setUnlockedBadges((prev) => (prev.includes(id) ? prev : [...prev, id]))
   }, [])
@@ -169,6 +201,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
       isBadgeUnlocked,
       mode,
       setMode,
+      experienceMode,
+      setExperienceMode,
     }),
     [
       terminalOpen,
@@ -187,6 +221,8 @@ export function UIProvider({ children }: { children: ReactNode }) {
       setMatrixActive,
       mode,
       setMode,
+      experienceMode,
+      setExperienceMode,
     ],
   )
 

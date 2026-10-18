@@ -20,7 +20,7 @@ function makeUrl(base: SequenceBase, frameStr: string): string {
 }
 
 interface FrameRecord {
-  img: HTMLImageElement
+  asset: ImageBitmap | HTMLImageElement
   base: SequenceBase
   index: number
 }
@@ -34,12 +34,12 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
 
   const base: SequenceBase = useMemo(() => (mode === 'ja' ? 'samurai' : 'knight'), [mode])
 
-  // Cache: Map keyed by URL with decoded images
+  // Cache: Map keyed by URL with decoded assets (ImageBitmap or HTMLImageElement)
   const cacheRef = useRef<Map<string, FrameRecord>>(new Map())
-  // Currently loading / decoding URLs to avoid duplicate fetches
+  // Currently loading URLs to avoid duplicate fetches
   const inFlightRef = useRef<Set<string>>(new Set())
-  // Pending load queue with prioritized URLs
-  const queueRef = useRef<Array<{ url: string; base: SequenceBase; index: number }>>([])
+  // Pending load queue
+  const queueRef = useRef<Array<{ url: string; base: SequenceBase; index: number; priority: number }>>([])
 
   // Track runtime state for render loop and directional prefetching
   const stateRef = useRef({
@@ -66,40 +66,15 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
     }
   }, [reduced])
 
-  // Evict distant frames when cache exceeds memory budget
-  const evictDistantFrames = useCallback((currentIdx: number, currentBase: SequenceBase) => {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const maxCapacity = isMobile ? 8 : 16
-
-    const cache = cacheRef.current
-    if (cache.size <= maxCapacity) return
-
-    // Find entries with largest distance from current index, prioritizing other modes for eviction
-    const entries = Array.from(cache.entries())
-    entries.sort(([, a], [, b]) => {
-      const distA = a.base === currentBase ? Math.abs(a.index - currentIdx) : 1000 + a.index
-      const distB = b.base === currentBase ? Math.abs(b.index - currentIdx) : 1000 + b.index
-      return distB - distA // descending distance
-    })
-
-    for (const [url, item] of entries) {
-      if (cache.size <= maxCapacity) break
-      // Never evict the currently displayed frame or immediate neighbors
-      if (item.base === currentBase && Math.abs(item.index - currentIdx) <= 2) {
-        continue
-      }
-      cache.delete(url)
-      // Allow garbage collection of bitmap
-      item.img.src = ''
-    }
-  }, [])
-
-  // Process next items in loading queue
+  // Process load queue with high concurrency (up to 8 concurrent requests for lightning-fast full preloading)
   const processQueue = useCallback(() => {
-    const MAX_CONCURRENT = 3
+    const MAX_CONCURRENT = 8
     const inFlight = inFlightRef.current
     const queue = queueRef.current
     const cache = cacheRef.current
+
+    // Sort queue by priority (lower number = higher priority)
+    queue.sort((a, b) => a.priority - b.priority)
 
     while (inFlight.size < MAX_CONCURRENT && queue.length > 0) {
       const item = queue.shift()!
@@ -108,99 +83,92 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
       if (cache.has(url) || inFlight.has(url)) continue
 
       inFlight.add(url)
-      const img = new Image()
 
-      const finishLoad = (success: boolean) => {
-        inFlight.delete(url)
-        if (!stateRef.current.isMounted) return
-
-        if (success && img.naturalWidth > 0) {
-          cache.set(url, { img, base: itemBase, index: itemIdx })
-          evictDistantFrames(stateRef.current.targetIdx, stateRef.current.base)
-          if (itemBase === stateRef.current.base && Math.abs(itemIdx - stateRef.current.targetIdx) <= 2) {
-            scheduleDrawRef.current?.()
-          }
-        }
-        processQueue()
-      }
-
-      img.src = url
-
-      const startDecode = async () => {
+      const loadAsset = async () => {
         try {
-          if (typeof img.decode === 'function') {
-            await img.decode()
-            finishLoad(true)
+          // Try createImageBitmap for off-main-thread hardware-accelerated decoding
+          const response = await fetch(url)
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+          const blob = await response.blob()
+
+          if (typeof window !== 'undefined' && typeof createImageBitmap === 'function') {
+            const bitmap = await createImageBitmap(blob)
+            if (!stateRef.current.isMounted) {
+              bitmap.close()
+              inFlight.delete(url)
+              return
+            }
+            cache.set(url, { asset: bitmap, base: itemBase, index: itemIdx })
+            inFlight.delete(url)
+
+            // If this frame is close to target, trigger draw
+            if (itemBase === stateRef.current.base && Math.abs(itemIdx - stateRef.current.targetIdx) <= 2) {
+              scheduleDrawRef.current?.()
+            }
+            processQueue()
             return
           }
         } catch {
-          // If decode rejects or is interrupted, fallback to naturalWidth or load events
+          // Fallback to HTMLImageElement if createImageBitmap fails or is unavailable
         }
 
-        if (img.complete && img.naturalWidth > 0) {
-          finishLoad(true)
-        } else {
-          img.onload = () => finishLoad(true)
-          img.onerror = () => finishLoad(false)
+        // Fallback loader
+        const img = new Image()
+        img.src = url
+        img.onload = () => {
+          inFlight.delete(url)
+          if (!stateRef.current.isMounted) return
+          if (img.naturalWidth > 0) {
+            cache.set(url, { asset: img, base: itemBase, index: itemIdx })
+            if (itemBase === stateRef.current.base && Math.abs(itemIdx - stateRef.current.targetIdx) <= 2) {
+              scheduleDrawRef.current?.()
+            }
+          }
+          processQueue()
+        }
+        img.onerror = () => {
+          inFlight.delete(url)
+          if (!stateRef.current.isMounted) return
+          processQueue()
         }
       }
 
-      startDecode()
+      loadAsset()
     }
-  }, [evictDistantFrames])
+  }, [])
 
-  // Request frames around target index with directional priority
-  const requestFrames = useCallback(
+  // Queue all frames for the active base: immediate priority for targetIdx and surroundings, background priority for the rest
+  const queueAllFrames = useCallback(
     (targetIdx: number, targetBase: SequenceBase, dir: 1 | -1) => {
-      const aheadCount = 6
-      const behindCount = 2
-      const lookahead: number[] = []
+      const queue = queueRef.current
+      const cache = cacheRef.current
+      const inFlight = inFlightRef.current
 
-      // Priority 1: Current target frame
-      lookahead.push(targetIdx)
+      // Build prioritized list of all 120 frames
+      const newItems: Array<{ url: string; base: SequenceBase; index: number; priority: number }> = []
 
-      // Priority 2: Lookahead in direction of scroll
-      for (let i = 1; i <= aheadCount; i++) {
-        const next = dir === 1 ? targetIdx + i : targetIdx - i
-        if (next >= 0 && next < TOTAL_FRAMES) {
-          lookahead.push(next)
-        }
+      for (let i = 0; i < TOTAL_FRAMES; i++) {
+        const url = makeUrl(targetBase, FRAME_STRINGS[i]!)
+        if (cache.has(url) || inFlight.has(url)) continue
+
+        // Calculate priority: distance from targetIdx, with directional bias
+        let dist = Math.abs(i - targetIdx)
+        if (dir === 1 && i < targetIdx) dist += 20 // moving down, prior frames slightly lower priority
+        if (dir === -1 && i > targetIdx) dist += 20 // moving up, later frames slightly lower priority
+        if (i === targetIdx) dist = 0 // absolute highest priority
+
+        newItems.push({ url, base: targetBase, index: i, priority: dist })
       }
 
-      // Priority 3: Lookahead behind scroll direction
-      for (let i = 1; i <= behindCount; i++) {
-        const prev = dir === 1 ? targetIdx - i : targetIdx + i
-        if (prev >= 0 && prev < TOTAL_FRAMES) {
-          lookahead.push(prev)
-        }
-      }
-
-      // Filter and prioritize new requests
-      const newItems: Array<{ url: string; base: SequenceBase; index: number }> = []
-      for (const idx of lookahead) {
-        const url = makeUrl(targetBase, FRAME_STRINGS[idx]!)
-        if (!cacheRef.current.has(url) && !inFlightRef.current.has(url)) {
-          newItems.push({ url, base: targetBase, index: idx })
-        }
-      }
-
-      // Retain only queued items within a reasonable neighborhood (window of 16 frames)
-      const filteredQueue = queueRef.current.filter((item) => {
-        if (item.base !== targetBase) return false
-        return Math.abs(item.index - targetIdx) <= 16
-      })
-
-      // Put new high-priority items at front of queue (deduplicating)
-      const existingUrls = new Set(filteredQueue.map((q) => q.url))
-      const combined = [...filteredQueue]
+      // Merge into queue, keeping existing items and sorting by priority
+      const existingUrls = new Set(queue.map((q) => q.url))
       for (const it of newItems) {
         if (!existingUrls.has(it.url)) {
-          combined.unshift(it)
+          queue.push(it)
           existingUrls.add(it.url)
         }
       }
 
-      queueRef.current = combined
       processQueue()
     },
     [processQueue]
@@ -210,14 +178,14 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
   useEffect(() => {
     stateRef.current.isMounted = true
     const currentIdx = stateRef.current.targetIdx
-    requestFrames(currentIdx, base, stateRef.current.direction)
+    queueAllFrames(currentIdx, base, stateRef.current.direction)
 
     return () => {
       stateRef.current.isMounted = false
     }
-  }, [base, requestFrames])
+  }, [base, queueAllFrames])
 
-  // On-demand render loop via requestAnimationFrame (no idle continuous rAF polling)
+  // On-demand render loop via requestAnimationFrame
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -264,10 +232,10 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
       const targetIdx = stateRef.current.targetIdx
       const targetUrl = makeUrl(currentBase, FRAME_STRINGS[targetIdx]!)
 
-      // 1. Check if exact target frame is decoded
+      // 1. Check if exact target frame is cached
       let frameToDraw: FrameRecord | null = cacheRef.current.get(targetUrl) ?? null
 
-      // 2. If target frame not ready, find the closest decoded frame in current sequence
+      // 2. If target frame not ready, find the closest cached frame in current sequence
       if (!frameToDraw) {
         const last = stateRef.current.lastDrawn
         if (last && last.base === currentBase) {
@@ -286,17 +254,22 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
         }
       }
 
-      // 3. Draw image with centered cover scaling
-      if (frameToDraw && frameToDraw.img.naturalWidth > 0) {
-        const img = frameToDraw.img
-        const scale = Math.max(width / img.naturalWidth, height / img.naturalHeight)
-        const dw = img.naturalWidth * scale
-        const dh = img.naturalHeight * scale
-        const dx = (width - dw) / 2
-        const dy = (height - dh) / 2
+      // 3. Draw asset with centered cover scaling
+      if (frameToDraw) {
+        const asset = frameToDraw.asset
+        const naturalWidth = 'naturalWidth' in asset ? asset.naturalWidth : asset.width
+        const naturalHeight = 'naturalHeight' in asset ? asset.naturalHeight : asset.height
 
-        context.drawImage(img, dx, dy, dw, dh)
-        stateRef.current.lastDrawn = frameToDraw
+        if (naturalWidth > 0 && naturalHeight > 0) {
+          const scale = Math.max(width / naturalWidth, height / naturalHeight)
+          const dw = naturalWidth * scale
+          const dh = naturalHeight * scale
+          const dx = (width - dw) / 2
+          const dy = (height - dh) / 2
+
+          context.drawImage(asset, dx, dy, dw, dh)
+          stateRef.current.lastDrawn = frameToDraw
+        }
       } else {
         if (!stateRef.current.lastDrawn) {
           context.fillStyle = '#0b0b0c'
@@ -341,7 +314,7 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
           const nextIdx = Math.round(Math.min(1, Math.max(0, p)) * (TOTAL_FRAMES - 1))
           if (nextIdx !== stateRef.current.targetIdx) {
             stateRef.current.targetIdx = nextIdx
-            requestFrames(nextIdx, stateRef.current.base, stateRef.current.direction)
+            queueAllFrames(nextIdx, stateRef.current.base, stateRef.current.direction)
             scheduleDraw()
           }
         }
@@ -357,7 +330,7 @@ export function CinematicSequence({ scrollYProgress, reduced: propReduced }: Cin
       cancelAnimationFrame(rafId)
       scheduleDrawRef.current = null
     }
-  }, [base, reduced, scrollYProgress, requestFrames])
+  }, [base, reduced, scrollYProgress, queueAllFrames])
 
   return (
     <canvas

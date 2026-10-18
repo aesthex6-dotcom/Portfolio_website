@@ -1,6 +1,7 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import { ToastProvider } from '@/store/toast'
 import { AtmosphereProvider } from '@/store/atmosphere'
+import { useUI } from '@/store/ui'
 import { SkipLink } from '@/components/layout/SkipLink'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
 import { Lodestar } from '@/components/lodestar'
@@ -10,7 +11,6 @@ import { Terminal } from '@/components/terminal/Terminal'
 import { AIChat } from '@/components/ai/AIChat'
 import { Soundtrack } from '@/components/soundtrack'
 import { UtilityDock } from '@/components/layout/UtilityDock'
-import { RecruiterToggle } from '@/components/recruiter/RecruiterToggle'
 import { MatrixRain } from '@/components/eggs/MatrixRain'
 import { RubberDuck } from '@/components/eggs/RubberDuck'
 import { SnakeGame } from '@/components/eggs/SnakeGame'
@@ -22,13 +22,17 @@ import { ResumePage } from '@/pages/ResumePage'
 import { NotFound } from '@/pages/NotFound'
 
 export default function App() {
+  const { experienceMode } = useUI()
+  const location = useLocation()
+  const isHomeAndNoExperience = location.pathname === '/' && experienceMode === null
+
   return (
     <ToastProvider>
       <AtmosphereProvider>
       <SkipLink />
       <ScrollToTop />
       <KonamiListener />
-      <Lodestar />
+      {!isHomeAndNoExperience && <Lodestar />}
 
       <main id="main" className="relative min-h-screen">
         <Routes>
@@ -41,18 +45,19 @@ export default function App() {
 
       {/* EngineeredField — the one continuous blueprint mechanism behind every scene.
           Fixed to viewport, scroll-driven progressive draw, never uses accent. */}
-      <EngineeredField />
+      {!isHomeAndNoExperience && <EngineeredField />}
 
-      <Footer />
+      {!isHomeAndNoExperience && <Footer />}
 
       {/* Global overlays / easter eggs */}
       <CommandPalette />
       <Terminal />
       <AIChat />
-      <Soundtrack>
-        <UtilityDock />
-      </Soundtrack>
-      <RecruiterToggle />
+      {!isHomeAndNoExperience && (
+        <Soundtrack>
+          <UtilityDock />
+        </Soundtrack>
+      )}
       <RubberDuck />
       <SnakeGame />
       <MatrixRain />

@@ -19,11 +19,12 @@ import { RecruiterAbout } from '@/components/recruiter/RecruiterAbout'
 import { RecruiterSkills } from '@/components/recruiter/RecruiterSkills'
 import { RecruiterProjects } from '@/components/recruiter/RecruiterProjects'
 import { RecruiterResumeCTA } from '@/components/recruiter/RecruiterResumeCTA'
+import { ExperienceSelector } from '@/components/experience/ExperienceSelector'
 import { profile } from '@/data/profile'
 
 export function Home() {
   const location = useLocation()
-  const { recruiterMode } = useUI()
+  const { recruiterMode, experienceMode } = useUI()
 
   usePageMeta(
     `${profile.name} · ${profile.roles[0]} & AI Developer`,
@@ -38,6 +39,10 @@ export function Home() {
       return () => clearTimeout(t)
     }
   }, [location.state])
+
+  if (experienceMode === null && location.pathname === '/') {
+    return <ExperienceSelector />
+  }
 
   return (
     <AnimatePresence mode="wait" initial={false}>
