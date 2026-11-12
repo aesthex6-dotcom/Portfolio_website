@@ -12,7 +12,7 @@ npm run build      → production build in dist/
 
 ---
 
-## ✨ Features
+##  Features
 
 **The essentials**
 
@@ -26,20 +26,20 @@ npm run build      → production build in dist/
 
 **The "whoa" features**
 
-- 🤖 **Digital twin chat** — a floating chat that answers as Himanshu, from editable knowledge files in [`knowledge/`](knowledge/README.md) + the site's live data. Works offline with zero keys; plug in a real LLM in 2 lines (see below).
-- ⌨️ **Interactive terminal** (`Ctrl+`` or the nav button) — 30+ commands: `about`, `projects <slug>`, `sudo hire-himanshu`…
+-  **Digital twin chat** — a floating chat that answers as Himanshu, from editable knowledge files in [`knowledge/`](knowledge/README.md) + the site's live data. Works offline with zero keys; plug in a real LLM in 2 lines (see below).
+-  **Interactive terminal** (`Ctrl+`` or the nav button) — 30+ commands: `about`, `projects <slug>`, `sudo hire-himanshu`…
 - ⌘ **Command palette** (`Ctrl+K`) — fuzzy-search sections, projects, blog posts, and actions.
-- 📈 **Live GitHub stats band** — real user/repo numbers + a contribution heatmap, fetched from the public API with caching.
+-  **Live GitHub stats band** — real user/repo numbers + a contribution heatmap, fetched from the public API with caching.
 - **Hidden developer mode** — Konami code, and then some.
 
 **Easter eggs** — see [the full reference](#-easter-eggs--secret-badges).
 
 ---
 
-## 🗂 Project structure
+##  Project structure
 
 ```
-knowledge/            # ✍️ digital twin knowledge files (EDIT THESE to teach the chatbot)
+knowledge/            #  digital twin knowledge files (EDIT THESE to teach the chatbot)
 src/
 ├── components/
 │   ├── ui/            # Reveal, SectionHeading, MagneticButton, Tilt, GlowOrbs…
@@ -66,7 +66,7 @@ src/
 │   ├── achievements.ts
 │   ├── blog.ts        # post metadata + featured post
 │   └── nav.ts         # nav sections
-├── content/posts/     # 📝 blog posts (markdown)
+├── content/posts/     #  blog posts (markdown)
 ├── hooks/             # useTypewriter, useKonami, useCountUp, useActiveSection…
 ├── lib/               # twin (digital twin), terminal, github client, posts, utils
 ├── pages/             # Home, BlogPostPage, ResumePage, NotFound
@@ -77,7 +77,7 @@ src/
 
 ---
 
-## ✏️ Making it yours
+##  Making it yours
 
 Everything you'd normally hard-code in a template lives in **`src/data/`** — edit one file and the hero, about, terminal, digital twin, resume, and contact all update together. The twin's *voice* and knowledge live separately in **`knowledge/`**.
 
@@ -114,7 +114,7 @@ The post route (`/blog/my-slug`) and terminal `blog` command pick it up automati
 
 ---
 
-## 📈 Live GitHub stats
+##  Live GitHub stats
 
 The stats band fetches from the public GitHub API and caches in `localStorage` (1 h TTL). Without a token you get the anonymous rate limit (60 req/h) — fine for occasional visits, but for reliable numbers set a token:
 
@@ -129,7 +129,7 @@ VITE_GITHUB_TOKEN=ghp_your_token
 
 ---
 
-## 🤖 Connecting a real LLM
+##  Connecting a real LLM
 
 By default the digital twin runs on a zero-key, fully-offline engine (`src/lib/twin/`) that retrieves answers from the editable [knowledge files](knowledge/README.md). To upgrade it to a real model, set two env vars:
 
@@ -157,7 +157,7 @@ Any OpenAI-compatible `/chat/completions` server works; adapt with a thin proxy.
 
 ---
 
-## ⌨️ Interactive terminal
+##  Interactive terminal
 
 Open with **`Ctrl+``** (backtick) or the nav button.
 
@@ -183,7 +183,7 @@ Open with **`Ctrl+``** (backtick) or the nav button.
 
 ---
 
-## 🥚 Easter eggs & secret badges
+##  Easter eggs & secret badges
 
 Badges persist in `localStorage` (`portfolio:badges`) and light up in the Achievements section.
 
@@ -201,7 +201,7 @@ Badges persist in `localStorage` (`portfolio:badges`) and light up in the Achiev
 
 ---
 
-## 🧱 Tech stack
+##  Tech stack
 
 - **Vite 5** + **React 18** + **TypeScript 5.5** (strict)
 - **Tailwind CSS 3.4** — CSS-variable design tokens, no glassmorphism
@@ -215,13 +215,13 @@ Manual chunk splitting keeps the initial bundle lean; all heavy routes (blog, re
 
 ---
 
-## 🚀 Deployment
+##  Deployment
 
 `npm run build` emits a static site in `dist/` — deploy anywhere (Netlify, Vercel, GitHub Pages, Cloudflare). For SPA routing add a rewrite to `index.html` (Vercel/Netlify do this automatically). Update the site URL in `public/robots.txt` + `public/sitemap.xml` before going live.
 
 ---
 
-## 📜 Scripts
+##  Scripts
 
 | Script              | What it does                            |
 | ------------------- | --------------------------------------- |
